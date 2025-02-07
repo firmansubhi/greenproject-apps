@@ -9,6 +9,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
+import { SessionProvider } from "./ctx";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -31,16 +32,28 @@ export default function RootLayout() {
 		return null;
 	}
 
+	return <RootLayoutNav />;
+
+	// return (
+	// 	<ThemeProvider
+	// 		value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+	// 	>
+	// 		<Stack>
+	// 			<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+	// 			<Stack.Screen name="login" options={{ headerShown: false }} />
+	// 			<Stack.Screen name="+not-found" />
+	// 		</Stack>
+	// 		<StatusBar style="auto" />
+	// 	</ThemeProvider>
+	// );
+}
+
+import { Slot } from "expo-router";
+
+function RootLayoutNav() {
 	return (
-		<ThemeProvider
-			value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-		>
-			<Stack>
-				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-				<Stack.Screen name="login" options={{ headerShown: false }} />
-				<Stack.Screen name="+not-found" />
-			</Stack>
-			<StatusBar style="auto" />
-		</ThemeProvider>
+		<SessionProvider>
+			<Slot />
+		</SessionProvider>
 	);
 }

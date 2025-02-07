@@ -1,12 +1,14 @@
-import { Image, StyleSheet, Platform } from "react-native";
+import { Image, StyleSheet, Platform, Text } from "react-native";
 
 import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Link } from "expo-router";
+import { useSession } from "../ctx";
 
 export default function HomeScreen() {
+	const { signOut } = useSession();
 	return (
 		<ParallaxScrollView
 			headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -26,6 +28,15 @@ export default function HomeScreen() {
 				<Link href="/login" style={styles.button}>
 					Go to About screen
 				</Link>
+
+				<Text
+					onPress={() => {
+						// The `app/(app)/_layout.tsx` will redirect to the sign-in screen.
+						signOut();
+					}}
+				>
+					Sign Out
+				</Text>
 				<ThemedText>
 					Edit{" "}
 					<ThemedText type="defaultSemiBold">

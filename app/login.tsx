@@ -7,42 +7,70 @@ import {
 	TextInput,
 	TouchableOpacity,
 	Text,
-	Alert,
+	Platform,
 } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as SecureStore from "expo-secure-store";
 import axios from "axios";
-const baseUrl = "https://www.roomie.id/";
+const baseUrl = "https://tempdev2.roomie.id/";
+import { useSession } from "./ctx";
+import { router } from "expo-router";
+
+import { getToken, showAlert } from "../utils";
 
 export default function LoginScreen() {
+	const { signIn } = useSession();
 	const [username, onChangeUsername] = useState("");
 	const [password, onChangePassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	const toggleShowPassword = () => {
 		setShowPassword(!showPassword);
 	};
 
-	const onPress = () => {
-		Alert.alert("Alert Title", "My Alert Msg", [
-			{
-				text: "Cancel",
-				onPress: () => console.log("Cancel Pressed"),
-				style: "cancel",
-			},
-			{ text: "OK", onPress: () => fetchData() },
-		]);
+	const onPress = async () => {
+		setLoading(true);
+		axios
+			.post(baseUrl + "auth/login", {
+				username: username,
+				password: password,
+			})
+			.then(async function (response) {
+				if (response.data.success == true) {
+					//typeAuth
+					signIn(username, response.data.token);
+
+					if (Platform.OS === "web") {
+					} else {
+						await SecureStore.setItemAsync(
+							"token",
+							response.data.token
+						);
+					}
+
+					router.replace("/");
+				} else {
+					alert(response.data.message);
+					showAlert("Failed", response.data.message);
+				}
+
+				setLoading(false);
+			})
+			.catch(function (error) {
+				setLoading(false);
+				if (error.response) {
+					showAlert("Failed", error.response.data.message);
+				}
+			});
 	};
 
-	const fetchData = async () => {
-		try {
-			const response = await axios.get(baseUrl + "teset");
-			console.log(response.data);
-		} catch (error) {
-			console.error("Error fetching data:", error);
-		}
+	const onPress2 = async () => {
+		let token = await getToken();
+		showAlert("Failed", token);
 	};
 
 	return (
@@ -50,17 +78,15 @@ export default function LoginScreen() {
 			headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
 			headerImage={
 				<Image
-					source={require("@/assets/images/hero-carousel-3.jpg")}
+					source={require("@/assets/images/hero-carousel-3b.jpg")}
 					style={styles.reactLogo}
 				/>
 			}
 		>
 			<ThemedView style={styles.titleContainer}>
-				<ThemedText type="title">About</ThemedText>
+				<ThemedText type="title">Login</ThemedText>
 			</ThemedView>
-			<ThemedText>
-				This app includes example code to help you get started.
-			</ThemedText>
+			<ThemedText>Enter your user name and password.</ThemedText>
 
 			<View style={styles.container}>
 				<TextInput
@@ -86,9 +112,15 @@ export default function LoginScreen() {
 					onPress={toggleShowPassword}
 				/>
 			</View>
-
-			<TouchableOpacity style={styles.button} onPress={onPress}>
+			<TouchableOpacity
+				disabled={loading}
+				style={styles.button}
+				onPress={onPress}
+			>
 				<Text>Press Here</Text>
+			</TouchableOpacity>
+			<TouchableOpacity style={styles.button} onPress={onPress2}>
+				<Text>Press cek</Text>
 			</TouchableOpacity>
 		</ParallaxScrollView>
 	);
@@ -99,16 +131,10 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
-		borderRadius: 8,
 		padding: 0,
 		borderBottomWidth: 1,
 	},
-	headerImage: {
-		color: "#808080",
-		bottom: -90,
-		left: -35,
-		position: "absolute",
-	},
+
 	titleContainer: {
 		flexDirection: "row",
 		gap: 8,
@@ -127,11 +153,9 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	reactLogo: {
-		height: 200,
+		height: 10,
 		flex: 1,
 		width: null,
-		bottom: 0,
-		left: 0,
 	},
 
 	icon: {
