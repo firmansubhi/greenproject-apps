@@ -1,47 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
 	Image,
-	View,
 	StyleSheet,
 	TextInput,
 	TouchableOpacity,
 	Text,
-	Platform,
 } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "axios";
-import { useSession } from "./ctx";
-import { router } from "expo-router";
-import { baseUrl, showAlert } from "../utils";
+import { router, useLocalSearchParams } from "expo-router";
+import { baseUrl, showAlert } from "../../utils";
 
-export default function LoginScreen() {
-	const { signIn } = useSession();
-	const [username, onChangeUsername] = useState("");
-	const [password, onChangePassword] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
+export default function VerifyScreen() {
+	const [mailkey, setMailkey] = useState("");
+	const [message, setMessage] = useState("Please wait... sending email");
 	const [loading, setLoading] = useState(false);
 
-	const toggleShowPassword = () => {
-		setShowPassword(!showPassword);
+	const local = useLocalSearchParams();
+
+	useEffect(() => {
+		sendCode();
+	}, []);
+
+	const sendCode = () => {
+		setLoading(true);
+		axios
+			.post(baseUrl() + "auth/send-verification", {
+				email: local.email,
+			})
+			.then(async function (response) {
+				if (response.data.success == true) {
+					showAlert("Code Sent", response.data.message);
+				} else {
+					showAlert("Failed", response.data.message);
+				}
+
+				setMessage(response.data.message);
+
+				setLoading(false);
+			})
+			.catch(function (error) {
+				setLoading(false);
+				if (error.response) {
+					showAlert("Failed", error.response.data.message);
+				}
+			});
 	};
 
 	const onPress = async () => {
 		setLoading(true);
 		axios
-			.post(baseUrl() + "auth/login", {
-				username: username,
-				password: password,
+			.post(baseUrl() + "auth/verify-code", {
+				email: local.email,
+				code: mailkey,
 			})
 			.then(async function (response) {
 				if (response.data.success == true) {
-					signIn(username, response.data.token);
-					router.replace("/");
+					showAlert("Success", response.data.message);
+					router.replace("/login");
 				} else {
-					console.log(response);
 					showAlert("Failed", response.data.message);
 				}
 
@@ -50,11 +70,7 @@ export default function LoginScreen() {
 			.catch(function (error) {
 				setLoading(false);
 				if (error.response) {
-					let msg = error.response.data.message;
-					showAlert("Failed", msg);
-					if (error.response.data.message == "unverified") {
-						router.replace("/verify/" + error.response.data.email);
-					}
+					showAlert("Failed", error.response.data.message);
 				}
 			});
 	};
@@ -70,44 +86,30 @@ export default function LoginScreen() {
 			}
 		>
 			<ThemedView style={styles.titleContainer}>
-				<ThemedText type="title">Login</ThemedText>
+				<ThemedText type="title">Verification</ThemedText>
 			</ThemedView>
-			<ThemedText>Enter your user name and password.</ThemedText>
+			<ThemedText>{message}</ThemedText>
 
 			<TextInput
 				style={styles.input}
-				onChangeText={onChangeUsername}
-				value={username}
-				placeholder="User Name"
+				onChangeText={setMailkey}
+				value={mailkey}
+				placeholder="Your code"
 			/>
 
-			<View style={styles.container}>
-				<TextInput
-					style={styles.inputPass}
-					onChangeText={onChangePassword}
-					value={password}
-					placeholder="Password"
-					secureTextEntry={!showPassword}
-				/>
-				<MaterialCommunityIcons
-					name={showPassword ? "eye-off" : "eye"}
-					size={24}
-					color="#aaa"
-					style={styles.icon}
-					onPress={toggleShowPassword}
-				/>
-			</View>
 			<TouchableOpacity
 				disabled={loading}
 				style={styles.button}
 				onPress={onPress}
 			>
-				<Text style={styles.buttonText}>Login</Text>
+				<Text style={styles.buttonText}>Verify Code</Text>
 			</TouchableOpacity>
 
-			<ThemedText onPress={() => router.replace("/register")} type="link">
-				Don't have account? Join here
-			</ThemedText>
+			{!loading && (
+				<ThemedText onPress={() => sendCode()} type="link">
+					Resend Code
+				</ThemedText>
+			)}
 		</ParallaxScrollView>
 	);
 }
@@ -151,7 +153,6 @@ const styles = StyleSheet.create({
 		marginLeft: 10,
 	},
 	button: {
-		marginTop: 20,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS

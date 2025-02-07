@@ -11,6 +11,7 @@ export const getToken = async () => {
 };
 
 export const showAlert = (title: string, body: string) => {
+	console.log(body);
 	if (Platform.OS === "web") {
 		alert(body);
 	} else {
@@ -18,7 +19,6 @@ export const showAlert = (title: string, body: string) => {
 	}
 };
 
-export type typeAuth = {
-	username: string;
-	token: string;
+export const baseUrl = () => {
+	return "https://tempdev2.roomie.id/";
 };

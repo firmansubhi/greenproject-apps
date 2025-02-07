@@ -7,20 +7,22 @@ import {
 	TextInput,
 	TouchableOpacity,
 	Text,
-	Platform,
 } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import axios from "axios";
-import { useSession } from "./ctx";
-import { router } from "expo-router";
+import { router, Link } from "expo-router";
 import { baseUrl, showAlert } from "../utils";
 
-export default function LoginScreen() {
-	const { signIn } = useSession();
+export default function RegisterScreen() {
+	const [firstname, onChangeFirstname] = useState("");
+	const [lastname, onChangeLastname] = useState("");
 	const [username, onChangeUsername] = useState("");
+	const [email, onChangeEmail] = useState("");
+	const [city, onChangeCity] = useState("");
 	const [password, onChangePassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -32,16 +34,18 @@ export default function LoginScreen() {
 	const onPress = async () => {
 		setLoading(true);
 		axios
-			.post(baseUrl() + "auth/login", {
+			.post(baseUrl() + "auth/join", {
+				firstname: firstname,
+				lastname: lastname,
 				username: username,
+				email: email,
+				city: city,
 				password: password,
 			})
 			.then(async function (response) {
 				if (response.data.success == true) {
-					signIn(username, response.data.token);
-					router.replace("/");
+					router.replace("/verify/" + email);
 				} else {
-					console.log(response);
 					showAlert("Failed", response.data.message);
 				}
 
@@ -50,11 +54,7 @@ export default function LoginScreen() {
 			.catch(function (error) {
 				setLoading(false);
 				if (error.response) {
-					let msg = error.response.data.message;
-					showAlert("Failed", msg);
-					if (error.response.data.message == "unverified") {
-						router.replace("/verify/" + error.response.data.email);
-					}
+					showAlert("Failed", error.response.data.message);
 				}
 			});
 	};
@@ -70,15 +70,43 @@ export default function LoginScreen() {
 			}
 		>
 			<ThemedView style={styles.titleContainer}>
-				<ThemedText type="title">Login</ThemedText>
+				<ThemedText type="title">Join</ThemedText>
 			</ThemedView>
-			<ThemedText>Enter your user name and password.</ThemedText>
+			<ThemedText>Become a Part of Our Mission!</ThemedText>
 
 			<TextInput
 				style={styles.input}
 				onChangeText={onChangeUsername}
 				value={username}
 				placeholder="User Name"
+			/>
+
+			<TextInput
+				style={styles.input}
+				onChangeText={onChangeFirstname}
+				value={firstname}
+				placeholder="First Name"
+			/>
+
+			<TextInput
+				style={styles.input}
+				onChangeText={onChangeLastname}
+				value={lastname}
+				placeholder="Last Name"
+			/>
+
+			<TextInput
+				style={styles.input}
+				onChangeText={onChangeEmail}
+				value={email}
+				placeholder="Email"
+			/>
+
+			<TextInput
+				style={styles.input}
+				onChangeText={onChangeCity}
+				value={city}
+				placeholder="City"
 			/>
 
 			<View style={styles.container}>
@@ -102,11 +130,11 @@ export default function LoginScreen() {
 				style={styles.button}
 				onPress={onPress}
 			>
-				<Text style={styles.buttonText}>Login</Text>
+				<Text style={styles.buttonText}>Join</Text>
 			</TouchableOpacity>
 
-			<ThemedText onPress={() => router.replace("/register")} type="link">
-				Don't have account? Join here
+			<ThemedText onPress={() => router.replace("/login")} type="link">
+				Already joined, click here
 			</ThemedText>
 		</ParallaxScrollView>
 	);
@@ -151,7 +179,6 @@ const styles = StyleSheet.create({
 		marginLeft: 10,
 	},
 	button: {
-		marginTop: 20,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
