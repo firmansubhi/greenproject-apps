@@ -2,11 +2,16 @@ import * as SecureStore from "expo-secure-store";
 import { Alert, Platform } from "react-native";
 
 export const getToken = async () => {
-	let result = await SecureStore.getItemAsync("token");
-	if (result) {
-		return result;
+	if (Platform.OS === "web") {
+		const token = localStorage.getItem("token");
+		return token;
 	} else {
-		return "";
+		let result = await SecureStore.getItemAsync("token");
+		if (result) {
+			return result;
+		} else {
+			return "";
+		}
 	}
 };
 

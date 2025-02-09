@@ -8,6 +8,7 @@ import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useSession } from "../ctx";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function TabLayout() {
 	const colorScheme = useColorScheme();
@@ -53,6 +54,15 @@ export default function TabLayout() {
 							name="paperplane.fill"
 							color={color}
 						/>
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="users"
+				options={{
+					title: "Users",
+					tabBarIcon: ({ color }) => (
+						<Ionicons size={28} name="people" color={color} />
 					),
 				}}
 			/>
