@@ -9,6 +9,7 @@ import {
 	Alert,
 	Modal,
 	Pressable,
+	SafeAreaView,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -17,6 +18,7 @@ import axios from "axios";
 import { baseUrl, showAlert, getToken } from "../../utils";
 import { Picker } from "@react-native-picker/picker";
 import { Link } from "expo-router";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 type ItemProps = {
 	userid: string;
@@ -48,10 +50,10 @@ export default function UsersScreen() {
 	const Item = ({ userid, username, email, name, city, role }: ItemProps) => (
 		<View style={styles.listItem}>
 			<View style={styles.textItem}>
-				<Text style={{ fontWeight: "bold" }}>{name}</Text>
-				<Text>{email}</Text>
-				<Text>Username : {username}</Text>
-				<Text>City : {city}</Text>
+				<ThemedText style={{ fontWeight: "bold" }}>{name}</ThemedText>
+				<ThemedText>{email}</ThemedText>
+				<ThemedText>Username : {username}</ThemedText>
+				<ThemedText>City : {city}</ThemedText>
 			</View>
 			<TouchableOpacity
 				onPress={() => deleteData(userid, name)}
@@ -83,6 +85,10 @@ export default function UsersScreen() {
 			></TouchableOpacity>*/}
 		</View>
 	);
+
+	const colorScheme = useColorScheme();
+	const themeTextInput =
+		colorScheme === "light" ? styles.inputLight : styles.inputDark;
 
 	const deleteData = async (id: string, name: string) => {
 		setConfirmDelete(true);
@@ -152,106 +158,124 @@ export default function UsersScreen() {
 	};
 
 	return (
-		<View style={styles.container}>
-			<Modal
-				animationType="fade"
-				transparent={true}
-				visible={confirmDelete}
-			>
-				<View style={styles.centeredView}>
-					<View style={styles.modalView}>
-						<Text style={styles.modalText}>
-							Delete {modalTitle} ?
-						</Text>
-						<View style={styles.modalButtonView}>
-							<Pressable
-								style={[
-									styles.buttonConfirm,
-									styles.buttonContinue,
-								]}
-								onPress={() => deleteRow()}
-							>
-								<Text style={styles.textStyle}>Continue</Text>
-							</Pressable>
-							<Pressable
-								style={[
-									styles.buttonConfirm,
-									styles.buttonClose,
-								]}
-								onPress={() => setConfirmDelete(false)}
-							>
-								<Text style={styles.textStyle}>Cancel</Text>
-							</Pressable>
+		<SafeAreaView style={styles.saveContainer}>
+			<ThemedView style={styles.container}>
+				<Modal
+					animationType="fade"
+					transparent={true}
+					visible={confirmDelete}
+				>
+					<View style={styles.centeredView}>
+						<View style={styles.modalView}>
+							<Text style={styles.modalText}>
+								Delete {modalTitle} ?
+							</Text>
+							<View style={styles.modalButtonView}>
+								<Pressable
+									style={[
+										styles.buttonConfirm,
+										styles.buttonContinue,
+									]}
+									onPress={() => deleteRow()}
+								>
+									<Text style={styles.textStyle}>
+										Continue
+									</Text>
+								</Pressable>
+								<Pressable
+									style={[
+										styles.buttonConfirm,
+										styles.buttonClose,
+									]}
+									onPress={() => setConfirmDelete(false)}
+								>
+									<Text style={styles.textStyle}>Cancel</Text>
+								</Pressable>
+							</View>
 						</View>
 					</View>
-				</View>
-			</Modal>
+				</Modal>
 
-			<ThemedView style={styles.titleContainer}>
-				<ThemedText type="title">Users</ThemedText>
-			</ThemedView>
-			<ThemedText>Usesr management page</ThemedText>
+				<ThemedView style={styles.titleContainer}>
+					<ThemedText type="title">Users</ThemedText>
+				</ThemedView>
+				<ThemedText>Usesr management page</ThemedText>
 
-			<View style={styles.containerSearch}>
-				<ThemedText type="subtitle">Search Form</ThemedText>
-				<TextInput
-					style={styles.input}
-					onChangeText={onChangeEmail}
-					value={email}
-					placeholder="Email"
-				/>
-				<Picker
-					selectedValue={usergroup}
-					onValueChange={(itemValue, itemIndex) => {
-						if (itemIndex > 0) {
-							setUsergroup(itemValue);
-						} else {
-							setUsergroup("");
-						}
-					}}
-				>
-					<Picker.Item label="All Group" value="-" />
-					<Picker.Item label="Seller" value="seller" />
-					<Picker.Item label="Receiver" value="receiver" />
-					<Picker.Item label="Buyer" value="buyer" />
-					<Picker.Item label="Administrator" value="administrator" />
-				</Picker>
-
-				<TouchableOpacity
-					disabled={loading}
-					style={styles.button}
-					onPress={loadData}
-				>
-					<Text style={styles.buttonText}>Search</Text>
-				</TouchableOpacity>
-			</View>
-			<FlatList
-				data={data}
-				onRefresh={() => loadData()}
-				refreshing={loading}
-				renderItem={({ item }) => (
-					<Item
-						userid={item.userid}
-						username={item.username}
-						email={item.email}
-						name={item.name}
-						city={item.city}
-						role={item.role}
+				<View style={styles.containerSearch}>
+					<ThemedText type="subtitle">Search Form</ThemedText>
+					<TextInput
+						style={[styles.input, themeTextInput]}
+						onChangeText={onChangeEmail}
+						value={email}
+						placeholder="Email"
+						placeholderTextColor="#777"
 					/>
-				)}
-				keyExtractor={(item) => item.email}
-			/>
-		</View>
+					<Picker
+						selectedValue={usergroup}
+						// style={[styles.inputSelect, themeTextInput]}
+						onValueChange={(itemValue, itemIndex) => {
+							if (itemIndex > 0) {
+								setUsergroup(itemValue);
+							} else {
+								setUsergroup("");
+							}
+						}}
+					>
+						<Picker.Item label="All Group" value="-" />
+						<Picker.Item label="Seller" value="seller" />
+						<Picker.Item label="Receiver" value="receiver" />
+						<Picker.Item label="Buyer" value="buyer" />
+						<Picker.Item
+							label="Administrator"
+							value="administrator"
+						/>
+					</Picker>
+
+					<TouchableOpacity
+						disabled={loading}
+						style={styles.button}
+						onPress={loadData}
+					>
+						<Text style={styles.buttonText}>Search</Text>
+					</TouchableOpacity>
+				</View>
+				<FlatList
+					data={data}
+					onRefresh={() => loadData()}
+					refreshing={loading}
+					renderItem={({ item }) => (
+						<Item
+							userid={item.userid}
+							username={item.username}
+							email={item.email}
+							name={item.name}
+							city={item.city}
+							role={item.role}
+						/>
+					)}
+					keyExtractor={(item) => item.email}
+				/>
+			</ThemedView>
+		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
+	saveContainer: {
+		flex: 1,
+	},
+
+	mainContainer: {
+		padding: 30,
+		flex: 1,
+		flexDirection: "column",
+	},
+
 	container: {
 		flex: 1,
-		backgroundColor: "#fff",
 		justifyContent: "center",
 
-		padding: 10,
+		padding: 15,
 	},
 
 	titleContainer: {
@@ -268,11 +292,24 @@ const styles = StyleSheet.create({
 		margin: 5,
 		padding: 10,
 		borderBottomWidth: 1,
-		borderColor: "#bbb",
+		borderColor: "#ccc",
 	},
+
+	inputSelect: {
+		borderBottomWidth: 1,
+		borderColor: "#ccc",
+		height: 50,
+	},
+
+	inputLight: {
+		color: "#000",
+	},
+	inputDark: {
+		color: "#fff",
+	},
+
 	button: {
 		padding: 10,
-		margin: 5,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
@@ -290,7 +327,7 @@ const styles = StyleSheet.create({
 
 	listItem: {
 		margin: 10,
-		backgroundColor: "#FFF",
+
 		width: "100%",
 		//flex: 1,
 		alignSelf: "center",

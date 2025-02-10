@@ -51,9 +51,14 @@ export default function RootLayout() {
 import { Slot } from "expo-router";
 
 function RootLayoutNav() {
+	const colorScheme = useColorScheme();
 	return (
-		<SessionProvider>
-			<Slot />
-		</SessionProvider>
+		<ThemeProvider
+			value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+		>
+			<SessionProvider>
+				<Slot />
+			</SessionProvider>
+		</ThemeProvider>
 	);
 }

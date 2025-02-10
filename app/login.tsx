@@ -1,15 +1,13 @@
 import React, { useState } from "react";
-
 import {
-	Image,
 	View,
 	StyleSheet,
 	TextInput,
 	TouchableOpacity,
+	SafeAreaView,
 	Text,
-	Platform,
 } from "react-native";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -17,6 +15,8 @@ import axios from "axios";
 import { useSession } from "./ctx";
 import { router } from "expo-router";
 import { baseUrl, showAlert } from "../utils";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Link } from "expo-router";
 
 export default function LoginScreen() {
 	const { signIn } = useSession();
@@ -24,6 +24,10 @@ export default function LoginScreen() {
 	const [password, onChangePassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
+
+	const colorScheme = useColorScheme();
+	const themeTextInput =
+		colorScheme === "light" ? styles.inputLight : styles.inputDark;
 
 	const toggleShowPassword = () => {
 		setShowPassword(!showPassword);
@@ -60,93 +64,108 @@ export default function LoginScreen() {
 	};
 
 	return (
-		<ParallaxScrollView
-			headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-			headerImage={
+		<SafeAreaView style={styles.saveContainer}>
+			<ThemedView style={styles.imageContainer}>
 				<Image
+					style={styles.image}
 					source={require("@/assets/images/hero-carousel-3b.jpg")}
-					style={styles.reactLogo}
+					contentFit="cover"
 				/>
-			}
-		>
-			<ThemedView style={styles.titleContainer}>
-				<ThemedText type="title">Login</ThemedText>
 			</ThemedView>
-			<ThemedText>Enter your user name and password.</ThemedText>
 
-			<TextInput
-				style={styles.input}
-				onChangeText={onChangeUsername}
-				value={username}
-				placeholder="User Name"
-			/>
+			<ThemedView style={styles.mainContainer}>
+				<ThemedText type="title">Login</ThemedText>
 
-			<View style={styles.container}>
 				<TextInput
-					style={styles.inputPass}
-					onChangeText={onChangePassword}
-					value={password}
-					placeholder="Password"
-					secureTextEntry={!showPassword}
+					style={[styles.input, themeTextInput]}
+					onChangeText={onChangeUsername}
+					value={username}
+					placeholder="User Name"
+					placeholderTextColor="#777"
 				/>
-				<MaterialCommunityIcons
-					name={showPassword ? "eye-off" : "eye"}
-					size={24}
-					color="#aaa"
-					style={styles.icon}
-					onPress={toggleShowPassword}
-				/>
-			</View>
-			<TouchableOpacity
-				disabled={loading}
-				style={styles.button}
-				onPress={onPress}
-			>
-				<Text style={styles.buttonText}>Login</Text>
-			</TouchableOpacity>
 
-			<ThemedText onPress={() => router.replace("/register")} type="link">
-				Don't have account? Join here
-			</ThemedText>
-		</ParallaxScrollView>
+				<View style={styles.container}>
+					<TextInput
+						style={[styles.inputPass, themeTextInput]}
+						onChangeText={onChangePassword}
+						value={password}
+						placeholder="Passwords"
+						placeholderTextColor="#777"
+						secureTextEntry={!showPassword}
+					/>
+					<MaterialCommunityIcons
+						name={showPassword ? "eye-off" : "eye"}
+						size={24}
+						color="#aaa"
+						style={styles.icon}
+						onPress={toggleShowPassword}
+					/>
+				</View>
+				<TouchableOpacity
+					disabled={loading}
+					style={styles.button}
+					onPress={onPress}
+				>
+					<Text style={styles.buttonText}>Login</Text>
+				</TouchableOpacity>
+
+				<ThemedText
+					onPress={() => router.replace("/register")}
+					type="link"
+				>
+					Don't have account? Join here
+				</ThemedText>
+			</ThemedView>
+		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
+	saveContainer: {
+		flex: 1,
+	},
+
+	imageContainer: {
+		flex: 1,
+		flexDirection: "row",
+		maxHeight: 200,
+	},
+	mainContainer: {
+		padding: 30,
+		flex: 1,
+		flexDirection: "column",
+	},
+
 	container: {
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
 		padding: 0,
 		borderBottomWidth: 1,
-		borderColor: "#bbb",
-	},
-
-	titleContainer: {
-		flexDirection: "row",
-		gap: 8,
+		borderColor: "#ccc",
 	},
 
 	input: {
 		height: 40,
 		margin: 5,
 		padding: 10,
-		flex: 1,
 		borderBottomWidth: 1,
-		borderColor: "#bbb",
+		borderColor: "#ccc",
 	},
+
+	inputLight: {
+		color: "#000",
+	},
+	inputDark: {
+		color: "#fff",
+	},
+
 	inputPass: {
 		height: 40,
 		margin: 5,
 		padding: 10,
 		flex: 1,
 	},
-	reactLogo: {
-		height: 10,
-		flex: 1,
-		width: null,
-	},
-
 	icon: {
 		marginLeft: 10,
 	},
@@ -166,5 +185,11 @@ const styles = StyleSheet.create({
 	},
 	buttonText: {
 		color: "white",
+	},
+
+	image: {
+		flex: 1,
+		maxHeight: 200,
+		marginBottom: 20,
 	},
 });

@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
 
 import {
-	Image,
 	StyleSheet,
 	TextInput,
 	TouchableOpacity,
 	Text,
+	SafeAreaView,
 } from "react-native";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { Image } from "expo-image";
+
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { baseUrl, showAlert } from "../../utils";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function VerifyScreen() {
 	const [mailkey, setMailkey] = useState("");
@@ -20,6 +22,9 @@ export default function VerifyScreen() {
 	const [loading, setLoading] = useState(false);
 
 	const local = useLocalSearchParams();
+	const colorScheme = useColorScheme();
+	const themeTextInput =
+		colorScheme === "light" ? styles.inputLight : styles.inputDark;
 
 	useEffect(() => {
 		sendCode();
@@ -76,52 +81,70 @@ export default function VerifyScreen() {
 	};
 
 	return (
-		<ParallaxScrollView
-			headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-			headerImage={
+		<SafeAreaView style={styles.saveContainer}>
+			<ThemedView style={styles.imageContainer}>
 				<Image
+					style={styles.image}
 					source={require("@/assets/images/hero-carousel-3b.jpg")}
-					style={styles.reactLogo}
+					contentFit="cover"
 				/>
-			}
-		>
-			<ThemedView style={styles.titleContainer}>
-				<ThemedText type="title">Verification</ThemedText>
 			</ThemedView>
-			<ThemedText>{message}</ThemedText>
 
-			<TextInput
-				style={styles.input}
-				onChangeText={setMailkey}
-				value={mailkey}
-				placeholder="Your code"
-			/>
+			<ThemedView style={styles.mainContainer}>
+				<ThemedText type="title">Verification</ThemedText>
 
-			<TouchableOpacity
-				disabled={loading}
-				style={styles.button}
-				onPress={onPress}
-			>
-				<Text style={styles.buttonText}>Verify Code</Text>
-			</TouchableOpacity>
+				<ThemedText>{message}</ThemedText>
 
-			{!loading && (
-				<ThemedText onPress={() => sendCode()} type="link">
-					Resend Code
-				</ThemedText>
-			)}
-		</ParallaxScrollView>
+				<TextInput
+					style={[styles.input, themeTextInput]}
+					onChangeText={setMailkey}
+					value={mailkey}
+					placeholder="Your code"
+					placeholderTextColor="#777"
+				/>
+
+				<TouchableOpacity
+					disabled={loading}
+					style={styles.button}
+					onPress={onPress}
+				>
+					<Text style={styles.buttonText}>Verify Code</Text>
+				</TouchableOpacity>
+
+				{!loading && (
+					<ThemedText onPress={() => sendCode()} type="link">
+						Resend Code
+					</ThemedText>
+				)}
+			</ThemedView>
+		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
+	saveContainer: {
+		flex: 1,
+	},
+
+	imageContainer: {
+		flex: 1,
+		flexDirection: "row",
+		maxHeight: 200,
+	},
+	mainContainer: {
+		padding: 30,
+		flex: 1,
+		flexDirection: "column",
+	},
+
 	container: {
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
 		padding: 0,
 		borderBottomWidth: 1,
-		borderColor: "#bbb",
+		borderColor: "#ccc",
+		marginBottom: 20,
 	},
 
 	titleContainer: {
@@ -133,10 +156,17 @@ const styles = StyleSheet.create({
 		height: 40,
 		margin: 5,
 		padding: 10,
-		flex: 1,
 		borderBottomWidth: 1,
-		borderColor: "#bbb",
+		borderColor: "#ccc",
 	},
+
+	inputLight: {
+		color: "#000",
+	},
+	inputDark: {
+		color: "#fff",
+	},
+
 	inputPass: {
 		height: 40,
 		margin: 5,
@@ -153,6 +183,7 @@ const styles = StyleSheet.create({
 		marginLeft: 10,
 	},
 	button: {
+		marginTop: 20,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
@@ -167,5 +198,10 @@ const styles = StyleSheet.create({
 	},
 	buttonText: {
 		color: "white",
+	},
+	image: {
+		flex: 1,
+		maxHeight: 200,
+		marginBottom: 20,
 	},
 });
