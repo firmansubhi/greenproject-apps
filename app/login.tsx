@@ -6,6 +6,7 @@ import {
 	TouchableOpacity,
 	SafeAreaView,
 	Text,
+	TouchableWithoutFeedback,
 } from "react-native";
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
@@ -66,11 +67,15 @@ export default function LoginScreen() {
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ThemedView style={styles.imageContainer}>
-				<Image
-					style={styles.image}
-					source={require("@/assets/images/hero-carousel-3b.jpg")}
-					contentFit="cover"
-				/>
+				<TouchableWithoutFeedback
+					onPress={() => router.replace("/home")}
+				>
+					<Image
+						style={styles.image}
+						source={require("@/assets/images/hero-carousel-3b.jpg")}
+						contentFit="cover"
+					/>
+				</TouchableWithoutFeedback>
 			</ThemedView>
 
 			<ThemedView style={styles.mainContainer}>
@@ -129,6 +134,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		flexDirection: "row",
 		maxHeight: 200,
+		height: 200,
 	},
 	mainContainer: {
 		padding: 30,
@@ -191,5 +197,6 @@ const styles = StyleSheet.create({
 		flex: 1,
 		maxHeight: 200,
 		marginBottom: 20,
+		height: 200,
 	},
 });

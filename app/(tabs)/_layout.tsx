@@ -16,7 +16,7 @@ export default function TabLayout() {
 	const { session, isLoading } = useSession();
 
 	if (!session) {
-		return <Redirect href="/login" />;
+		return <Redirect href="/home" />;
 	}
 
 	return (
