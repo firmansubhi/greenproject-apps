@@ -73,6 +73,16 @@ export default function TabLayout() {
 					href: null,
 				}}
 			/>
+
+			<Tabs.Screen
+				name="products"
+				options={{
+					title: "Products",
+					tabBarIcon: ({ color }) => (
+						<Ionicons size={28} name="briefcase" color={color} />
+					),
+				}}
+			/>
 		</Tabs>
 	);
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import {
 	StyleSheet,
 	Text,
@@ -20,17 +20,19 @@ import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router } from "expo-router";
 
+//import Item from "../pro";
+
 type ItemProps = {
-	userid: string;
-	username: string;
-	email: string;
-	name: string;
-	city: string;
-	role: string;
+	productid: number;
+	sid: string;
+	tipe: string;
+	headline: string;
+	price: number;
 };
 
-export default function UsersScreen() {
+export default function ProductsScreen() {
 	const [loading, setLoading] = useState(false);
+	const [page, setPage] = useState(1);
 	const [email, onChangeEmail] = useState("");
 	const [usergroup, setUsergroup] = useState("");
 	const [confirmDelete, setConfirmDelete] = useState(false);
@@ -38,54 +40,50 @@ export default function UsersScreen() {
 	const [modalTitle, setModalTitle] = useState("");
 	const [data, setData] = useState([
 		{
-			userid: "",
-			username: "",
-			email: "",
-			name: "",
-			city: "",
-			role: "",
+			productid: 0,
+			sid: "",
+			tipe: "",
+			headline: "",
+			price: 0,
 		},
 	]);
 
-	const Item = ({ userid, username, email, name, city, role }: ItemProps) => (
-		<View style={styles.listItem}>
-			<View style={styles.textItem}>
-				<ThemedText style={{ fontWeight: "bold" }}>
-					{name} - {role}
-				</ThemedText>
-				<ThemedText>{email}</ThemedText>
-				<ThemedText>Username : {username}</ThemedText>
-				<ThemedText>City : {city}</ThemedText>
-			</View>
-			<TouchableOpacity
-				onPress={() => deleteData(userid, name)}
-				style={{
-					height: 50,
-					width: 100,
-					justifyContent: "flex-start",
-					alignItems: "center",
-				}}
-			>
-				<FontAwesome6 name="trash-can" size={16} color="green" />
-			</TouchableOpacity>
+	const Item = memo(
+		({ productid, tipe, headline, price }: ItemProps) => (
+			<View style={styles.listItem}>
+				<View style={styles.textItem}>
+					<ThemedText style={{ fontWeight: "bold" }}>
+						{headline}
+					</ThemedText>
+					<ThemedText>{tipe}</ThemedText>
+					<ThemedText>Username : {productid}</ThemedText>
+					<ThemedText>City : {price}</ThemedText>
+				</View>
+				<TouchableOpacity
+					onPress={() => deleteData(productid, headline)}
+					style={{
+						height: 50,
+						width: 100,
+						justifyContent: "flex-start",
+						alignItems: "center",
+					}}
+				>
+					<FontAwesome6 name="trash-can" size={16} color="green" />
+				</TouchableOpacity>
 
-			<Link
-				href={{
-					pathname: "/user/[id]",
-					params: { id: userid },
-				}}
-			>
-				<FontAwesome6 name="edit" size={16} color="green" />
-			</Link>
-			{/*<TouchableOpacity
-				style={{
-					height: 50,
-					width: 25,
-					justifyContent: "center",
-					alignItems: "center",
-				}}
-			></TouchableOpacity>*/}
-		</View>
+				<Link
+					href={{
+						pathname: "/user/[id]",
+						params: { id: productid },
+					}}
+				>
+					<FontAwesome6 name="edit" size={16} color="green" />
+				</Link>
+			</View>
+		),
+		(prevProps, nextProps) => {
+			return prevProps.productid === nextProps.productid;
+		}
 	);
 
 	const colorScheme = useColorScheme();
@@ -94,25 +92,35 @@ export default function UsersScreen() {
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
 
-	const deleteData = async (id: string, name: string) => {
+	const deleteData = async (id: number, name: string) => {
 		setConfirmDelete(true);
-		setModalId(id);
+		setModalId(id.toString());
 		setModalTitle(name);
 	};
 
 	useEffect(() => {
 		setData([]);
-		loadData();
 	}, []);
+
+	useEffect(() => {
+		loadData();
+	}, [page]);
+
+	const refreshData = () => {
+		setPage(1);
+	};
+
+	const moreData = () => {
+		setPage(page + 1);
+	};
 
 	const loadData = async () => {
 		setLoading(true);
 		let token = await getToken();
 		axios
-			.get(baseUrl() + "users/showall", {
+			.get(baseUrl() + "listing/listing", {
 				params: {
-					email: email,
-					role: usergroup,
+					page: page,
 				},
 				headers: {
 					Authorization: "Bearer " + token,
@@ -120,7 +128,11 @@ export default function UsersScreen() {
 			})
 			.then(function (response) {
 				if (response.data.success == true) {
-					setData(response.data.data.rows);
+					if (page == 1) {
+						setData(response.data.data.rows);
+					} else {
+						setData([...data, ...response.data.data.rows]);
+					}
 				} else {
 					showAlert("Failed", response.data.message);
 				}
@@ -136,30 +148,7 @@ export default function UsersScreen() {
 	};
 
 	const deleteRow = async () => {
-		setLoading(true);
-		let token = await getToken();
-		axios
-			.delete(baseUrl() + "users/" + modalId, {
-				headers: {
-					Authorization: "Bearer " + token,
-				},
-			})
-			.then(function (response) {
-				if (response.data.success == true) {
-					loadData();
-				} else {
-					showAlert("Failed", response.data.message);
-				}
-			})
-			.catch(function (error) {
-				if (error.response) {
-					showAlert("Failed", error.response.data.message);
-				}
-			})
-			.finally(function () {
-				setLoading(false);
-				setConfirmDelete(false);
-			});
+		//
 	};
 
 	return (
@@ -202,9 +191,9 @@ export default function UsersScreen() {
 				</Modal>
 
 				<ThemedView style={styles.titleContainer}>
-					<ThemedText type="title">Users</ThemedText>
+					<ThemedText type="title">Product</ThemedText>
 				</ThemedView>
-				<ThemedText>Users management page</ThemedText>
+				<ThemedText>Product management page</ThemedText>
 
 				<View style={styles.containerSearch}>
 					<ThemedText type="subtitle">Search Form</ThemedText>
@@ -253,19 +242,20 @@ export default function UsersScreen() {
 				</View>
 				<FlatList
 					data={data}
-					onRefresh={() => loadData()}
+					onEndReachedThreshold={0.1}
+					onEndReached={moreData}
+					onRefresh={refreshData}
 					refreshing={loading}
 					renderItem={({ item }) => (
 						<Item
-							userid={item.userid}
-							username={item.username}
-							email={item.email}
-							name={item.name}
-							city={item.city}
-							role={item.role}
+							productid={item.productid}
+							sid={item.sid}
+							tipe={item.tipe}
+							headline={item.headline}
+							price={item.price}
 						/>
 					)}
-					keyExtractor={(item) => item.email}
+					keyExtractor={(item) => item.sid}
 				/>
 			</ThemedView>
 		</SafeAreaView>

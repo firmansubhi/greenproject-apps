@@ -38,6 +38,8 @@ export default function RegisterScreen() {
 	const colorScheme = useColorScheme();
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
+	const themeTextSelect =
+		colorScheme === "light" ? styles.selectLight : styles.selectDark;
 
 	const toggleShowPassword = () => {
 		setShowPassword(!showPassword);
@@ -154,8 +156,9 @@ export default function RegisterScreen() {
 					<ThemedText>Update user data</ThemedText>
 
 					<Picker
+						accessibilityLabel="Basic Picker Accessibility Label"
 						selectedValue={role}
-						// style={[styles.inputSelect, themeTextInput]}
+						style={[themeTextSelect]}
 						onValueChange={(itemValue, itemIndex) => {
 							if (itemIndex > 0) {
 								setRole(itemValue);
@@ -288,6 +291,14 @@ const styles = StyleSheet.create({
 	},
 	inputDark: {
 		color: "#fff",
+	},
+
+	selectLight: {
+		color: "black",
+	},
+
+	selectDark: {
+		color: "white",
 	},
 
 	inputPass: {

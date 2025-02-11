@@ -71,21 +71,21 @@ export default function homeScreen() {
 					>
 						<View style={[styles.icon1]}>
 							<Image
-								style={styles.image1}
+								style={[styles.image1, styles.image1b]}
 								source={require("@/assets/images/logo/recycle.png")}
 								contentFit="cover"
 							/>
 						</View>
 						<View style={[styles.icon1]}>
 							<Image
-								style={styles.image1}
+								style={[styles.image1, styles.image1b]}
 								source={require("@/assets/images/logo/co2a.png")}
 								contentFit="cover"
 							/>
 						</View>
 						<View style={[styles.icon1]}>
 							<Image
-								style={styles.image1}
+								style={[styles.image1, styles.image1b]}
 								source={require("@/assets/images/logo/forest2.png")}
 								contentFit="cover"
 							/>
@@ -318,12 +318,18 @@ const styles = StyleSheet.create({
 		maxHeight: 200,
 	},
 
-	icon1: { flex: 1, alignItems: "center", justifyContent: "center" },
+	icon1: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+	},
 
 	image1: {
 		flex: 1,
 		width: "100%",
 	},
+
+	image1b: {},
 
 	input: {
 		height: 40,
