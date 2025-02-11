@@ -46,7 +46,6 @@ export default function LoginScreen() {
 					signIn(username, response.data.token);
 					router.replace("/");
 				} else {
-					console.log(response);
 					showAlert("Failed", response.data.message);
 				}
 

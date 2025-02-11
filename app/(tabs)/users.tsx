@@ -6,7 +6,6 @@ import {
 	FlatList,
 	TextInput,
 	TouchableOpacity,
-	Alert,
 	Modal,
 	Pressable,
 	SafeAreaView,
@@ -19,6 +18,7 @@ import { baseUrl, showAlert, getToken } from "../../utils";
 import { Picker } from "@react-native-picker/picker";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { router } from "expo-router";
 
 type ItemProps = {
 	userid: string;
@@ -69,7 +69,7 @@ export default function UsersScreen() {
 
 			<Link
 				href={{
-					pathname: "../users/[id]",
+					pathname: "/user/[id]",
 					params: { id: userid },
 				}}
 			>
@@ -199,7 +199,7 @@ export default function UsersScreen() {
 				<ThemedView style={styles.titleContainer}>
 					<ThemedText type="title">Users</ThemedText>
 				</ThemedView>
-				<ThemedText>Usesr management page</ThemedText>
+				<ThemedText>Users management page</ThemedText>
 
 				<View style={styles.containerSearch}>
 					<ThemedText type="subtitle">Search Form</ThemedText>
@@ -238,6 +238,13 @@ export default function UsersScreen() {
 					>
 						<Text style={styles.buttonText}>Search</Text>
 					</TouchableOpacity>
+
+					<ThemedText
+						onPress={() => router.replace("/user/0")}
+						type="link"
+					>
+						Create new user
+					</ThemedText>
 				</View>
 				<FlatList
 					data={data}

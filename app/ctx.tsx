@@ -16,7 +16,7 @@ const AuthContext = createContext<{
 });
 
 // This hook can be used to access the user info.
-export function useSession() {
+export const useSession = () => {
 	const value = useContext(AuthContext);
 	if (process.env.NODE_ENV !== "production") {
 		if (!value) {
@@ -27,9 +27,9 @@ export function useSession() {
 	}
 
 	return value;
-}
+};
 
-export function SessionProvider({ children }: PropsWithChildren) {
+export const SessionProvider = ({ children }: PropsWithChildren) => {
 	const [[isLoading, session], setSession] = useStorageState("session");
 	const [[tmp, token], setToken] = useStorageState("token");
 
@@ -53,4 +53,6 @@ export function SessionProvider({ children }: PropsWithChildren) {
 			{children}
 		</AuthContext.Provider>
 	);
-}
+};
+
+//module.exports = { useSession, SessionProvider };

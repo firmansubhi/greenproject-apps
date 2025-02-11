@@ -16,7 +16,6 @@ export const getToken = async () => {
 };
 
 export const showAlert = (title: string, body: string) => {
-	console.log(body);
 	if (Platform.OS === "web") {
 		alert(body);
 	} else {

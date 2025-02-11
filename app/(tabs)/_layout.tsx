@@ -33,6 +33,7 @@ export default function TabLayout() {
 					},
 					default: {},
 				}),
+				animation: "fade",
 			}}
 		>
 			<Tabs.Screen
@@ -64,6 +65,12 @@ export default function TabLayout() {
 					tabBarIcon: ({ color }) => (
 						<Ionicons size={28} name="people" color={color} />
 					),
+				}}
+			/>
+			<Tabs.Screen
+				name="user/[id]"
+				options={{
+					href: null,
 				}}
 			/>
 		</Tabs>
