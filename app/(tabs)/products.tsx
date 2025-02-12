@@ -15,52 +15,46 @@ import { ThemedView } from "@/components/ThemedView";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import axios from "axios";
 import { baseUrl, showAlert, getToken } from "../../utils";
-import { Picker } from "@react-native-picker/picker";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { router } from "expo-router";
-
-//import Item from "../pro";
+import { router, useNavigation, usePathname } from "expo-router";
 
 type ItemProps = {
-	productid: number;
-	sid: string;
-	tipe: string;
-	headline: string;
+	id: string;
+	name: string;
 	price: number;
 };
 
 export default function ProductsScreen() {
 	const [loading, setLoading] = useState(false);
-	const [page, setPage] = useState(1);
-	const [email, onChangeEmail] = useState("");
-	const [usergroup, setUsergroup] = useState("");
+	const [name, setName] = useState("");
+
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const [modalId, setModalId] = useState("");
 	const [modalTitle, setModalTitle] = useState("");
 	const [data, setData] = useState([
 		{
-			productid: 0,
-			sid: "",
-			tipe: "",
-			headline: "",
+			id: "",
+			name: "",
 			price: 0,
 		},
 	]);
 
 	const Item = memo(
-		({ productid, tipe, headline, price }: ItemProps) => (
-			<View style={styles.listItem}>
+		({ id, name, price }: ItemProps) => (
+			<View style={[styles.listItem, styles.shadows]}>
 				<View style={styles.textItem}>
-					<ThemedText style={{ fontWeight: "bold" }}>
-						{headline}
+					<ThemedText
+						style={{
+							fontWeight: "bold",
+						}}
+					>
+						{name}
 					</ThemedText>
-					<ThemedText>{tipe}</ThemedText>
-					<ThemedText>Username : {productid}</ThemedText>
-					<ThemedText>City : {price}</ThemedText>
+					<ThemedText>{price}</ThemedText>
 				</View>
 				<TouchableOpacity
-					onPress={() => deleteData(productid, headline)}
+					onPress={() => deleteData(id, name)}
 					style={{
 						height: 50,
 						width: 100,
@@ -73,8 +67,8 @@ export default function ProductsScreen() {
 
 				<Link
 					href={{
-						pathname: "/user/[id]",
-						params: { id: productid },
+						pathname: "/product/[id]",
+						params: { id: id },
 					}}
 				>
 					<FontAwesome6 name="edit" size={16} color="green" />
@@ -82,45 +76,37 @@ export default function ProductsScreen() {
 			</View>
 		),
 		(prevProps, nextProps) => {
-			return prevProps.productid === nextProps.productid;
+			return prevProps.id === nextProps.id;
 		}
 	);
 
 	const colorScheme = useColorScheme();
-	const themeTextSelect =
-		colorScheme === "light" ? styles.selectLight : styles.selectDark;
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
 
-	const deleteData = async (id: number, name: string) => {
+	const deleteData = async (id: string, name: string) => {
 		setConfirmDelete(true);
 		setModalId(id.toString());
 		setModalTitle(name);
 	};
 
-	useEffect(() => {
-		setData([]);
-	}, []);
+	const navigation = useNavigation();
+	const focused = navigation.isFocused();
+	const path = usePathname();
 
 	useEffect(() => {
-		loadData();
-	}, [page]);
-
-	const refreshData = () => {
-		setPage(1);
-	};
-
-	const moreData = () => {
-		setPage(page + 1);
-	};
+		if (path == "/products" && focused == true) {
+			loadData();
+		}
+	}, [focused]);
 
 	const loadData = async () => {
 		setLoading(true);
 		let token = await getToken();
 		axios
-			.get(baseUrl() + "listing/listing", {
+			.get(baseUrl() + "product/all", {
 				params: {
-					page: page,
+					name: name,
 				},
 				headers: {
 					Authorization: "Bearer " + token,
@@ -128,11 +114,7 @@ export default function ProductsScreen() {
 			})
 			.then(function (response) {
 				if (response.data.success == true) {
-					if (page == 1) {
-						setData(response.data.data.rows);
-					} else {
-						setData([...data, ...response.data.data.rows]);
-					}
+					setData(response.data.data.rows);
 				} else {
 					showAlert("Failed", response.data.message);
 				}
@@ -148,7 +130,30 @@ export default function ProductsScreen() {
 	};
 
 	const deleteRow = async () => {
-		//
+		setLoading(true);
+		let token = await getToken();
+		axios
+			.delete(baseUrl() + "product/" + modalId, {
+				headers: {
+					Authorization: "Bearer " + token,
+				},
+			})
+			.then(function (response) {
+				if (response.data.success == true) {
+					loadData();
+				} else {
+					showAlert("Failed", response.data.message);
+				}
+			})
+			.catch(function (error) {
+				if (error.response) {
+					showAlert("Failed", error.response.data.message);
+				}
+			})
+			.finally(function () {
+				setLoading(false);
+				setConfirmDelete(false);
+			});
 	};
 
 	return (
@@ -191,7 +196,7 @@ export default function ProductsScreen() {
 				</Modal>
 
 				<ThemedView style={styles.titleContainer}>
-					<ThemedText type="title">Product</ThemedText>
+					<ThemedText type="title">Product </ThemedText>
 				</ThemedView>
 				<ThemedText>Product management page</ThemedText>
 
@@ -199,31 +204,11 @@ export default function ProductsScreen() {
 					<ThemedText type="subtitle">Search Form</ThemedText>
 					<TextInput
 						style={[styles.input, themeTextInput]}
-						onChangeText={onChangeEmail}
-						value={email}
-						placeholder="Email"
+						onChangeText={setName}
+						value={name}
+						placeholder="Product Name"
 						placeholderTextColor="#777"
 					/>
-					<Picker
-						selectedValue={usergroup}
-						style={[themeTextSelect]}
-						onValueChange={(itemValue, itemIndex) => {
-							if (itemIndex > 0) {
-								setUsergroup(itemValue);
-							} else {
-								setUsergroup("");
-							}
-						}}
-					>
-						<Picker.Item label="All Group" value="-" />
-						<Picker.Item label="Seller" value="seller" />
-						<Picker.Item label="Receiver" value="receiver" />
-						<Picker.Item label="Buyer" value="buyer" />
-						<Picker.Item
-							label="Administrator"
-							value="administrator"
-						/>
-					</Picker>
 
 					<TouchableOpacity
 						disabled={loading}
@@ -234,28 +219,24 @@ export default function ProductsScreen() {
 					</TouchableOpacity>
 
 					<ThemedText
-						onPress={() => router.replace("/user/0")}
+						onPress={() => router.replace("/product/0")}
 						type="link"
 					>
-						Create new user
+						Create new Product
 					</ThemedText>
 				</View>
 				<FlatList
 					data={data}
-					onEndReachedThreshold={0.1}
-					onEndReached={moreData}
-					onRefresh={refreshData}
+					onRefresh={() => loadData()}
 					refreshing={loading}
 					renderItem={({ item }) => (
 						<Item
-							productid={item.productid}
-							sid={item.sid}
-							tipe={item.tipe}
-							headline={item.headline}
+							id={item.id}
+							name={item.name}
 							price={item.price}
 						/>
 					)}
-					keyExtractor={(item) => item.sid}
+					keyExtractor={(item) => item.id}
 				/>
 			</ThemedView>
 		</SafeAreaView>
@@ -330,14 +311,22 @@ const styles = StyleSheet.create({
 		color: "white",
 	},
 
-	listItem: {
-		margin: 10,
+	shadows: {
+		elevation: 5,
+		shadowColor: "#ccc",
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.8,
+		shadowRadius: 2,
+	},
 
+	listItem: {
+		padding: 20,
+		margin: 10,
 		width: "100%",
 		//flex: 1,
 		alignSelf: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 2,
 	},
 	textItem: { flex: 1 },
 

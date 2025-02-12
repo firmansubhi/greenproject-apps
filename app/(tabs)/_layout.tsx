@@ -58,6 +58,17 @@ export default function TabLayout() {
 					),
 				}}
 			/>
+
+			<Tabs.Screen
+				name="transactions"
+				options={{
+					title: "Transaction",
+					tabBarIcon: ({ color }) => (
+						<Ionicons size={28} name="cart" color={color} />
+					),
+				}}
+			/>
+
 			<Tabs.Screen
 				name="users"
 				options={{
@@ -81,6 +92,13 @@ export default function TabLayout() {
 					tabBarIcon: ({ color }) => (
 						<Ionicons size={28} name="briefcase" color={color} />
 					),
+				}}
+			/>
+
+			<Tabs.Screen
+				name="product/[id]"
+				options={{
+					href: null,
 				}}
 			/>
 		</Tabs>
