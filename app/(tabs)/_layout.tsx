@@ -68,6 +68,12 @@ export default function TabLayout() {
 					),
 				}}
 			/>
+			<Tabs.Screen
+				name="transaction/[idTrans]"
+				options={{
+					href: null,
+				}}
+			/>
 
 			<Tabs.Screen
 				name="users"

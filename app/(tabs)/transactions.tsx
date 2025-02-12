@@ -18,47 +18,68 @@ import { baseUrl, showAlert, getToken } from "../../utils";
 import { Picker } from "@react-native-picker/picker";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { router } from "expo-router";
+import { router, useNavigation, usePathname } from "expo-router";
 
 type ItemProps = {
-	productid: number;
+	id: string;
 	sid: string;
-	tipe: string;
-	headline: string;
-	price: number;
+	transID: string;
+	sellerName: string;
+	receiverName: string;
+	buyerName: string;
+	productName: string;
+	weight: number;
+	amount: number;
+	status: string;
 };
 
 export default function TransactionsScreen() {
 	const [loading, setLoading] = useState(false);
 	const [page, setPage] = useState(1);
-	const [email, onChangeEmail] = useState("");
-	const [usergroup, setUsergroup] = useState("");
+	const [sellerUsername, setSellerUsername] = useState("");
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const [modalId, setModalId] = useState("");
 	const [modalTitle, setModalTitle] = useState("");
+	const [totalPages, setTotalPages] = useState(0);
 	const [data, setData] = useState([
 		{
-			productid: 0,
+			id: "",
 			sid: "",
-			tipe: "",
-			headline: "",
-			price: 0,
+			transID: "",
+			sellerName: "",
+			receiverName: "",
+			buyerName: "",
+			productName: "",
+			weight: 0,
+			amount: 0,
+			status: "",
 		},
 	]);
 
 	const Item = memo(
-		({ productid, tipe, headline, price }: ItemProps) => (
+		({
+			id,
+			sid,
+			transID,
+			sellerName,
+			receiverName,
+			buyerName,
+			productName,
+			weight,
+			amount,
+			status,
+		}: ItemProps) => (
 			<View style={[styles.listItem, styles.shadows]}>
 				<View style={styles.textItem}>
 					<ThemedText style={{ fontWeight: "bold" }}>
-						{headline}
+						{transID}
 					</ThemedText>
-					<ThemedText>{tipe}</ThemedText>
-					<ThemedText>Username : {productid}</ThemedText>
-					<ThemedText>City : {price}</ThemedText>
+					<ThemedText>{productName}</ThemedText>
+					<ThemedText>{weight}</ThemedText>
+					<ThemedText> {status}</ThemedText>
 				</View>
 				<TouchableOpacity
-					onPress={() => deleteData(productid, headline)}
+					onPress={() => deleteData(id, transID)}
 					style={{
 						height: 50,
 						width: 100,
@@ -71,8 +92,8 @@ export default function TransactionsScreen() {
 
 				<Link
 					href={{
-						pathname: "/user/[id]",
-						params: { id: productid },
+						pathname: "/transaction/[id]",
+						params: { id: id },
 					}}
 				>
 					<FontAwesome6 name="edit" size={16} color="green" />
@@ -80,42 +101,55 @@ export default function TransactionsScreen() {
 			</View>
 		),
 		(prevProps, nextProps) => {
-			return prevProps.productid === nextProps.productid;
+			return prevProps.sid === nextProps.sid;
 		}
 	);
 
 	const colorScheme = useColorScheme();
-	const themeTextSelect =
-		colorScheme === "light" ? styles.selectLight : styles.selectDark;
+
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
 
-	const deleteData = async (id: number, name: string) => {
+	const deleteData = async (id: string, name: string) => {
 		setConfirmDelete(true);
 		setModalId(id.toString());
 		setModalTitle(name);
 	};
 
-	useEffect(() => {}, []);
+	const navigation = useNavigation();
+	const focused = navigation.isFocused();
+	const path = usePathname();
 
 	useEffect(() => {
-		loadData();
-	}, [page]);
+		if (path == "/transactions" && focused == true) {
+			loadData();
+		}
+	}, [focused]);
 
 	const refreshData = () => {
 		setPage(1);
+		loadData();
 	};
 
 	const moreData = () => {
-		setPage(page + 1);
+		if (page + 1 <= totalPages) {
+			setPage(page + 1);
+		}
 	};
+
+	const renderFooter = () => (
+		<View style={{ justifyContent: "center", alignItems: "center" }}>
+			{page == totalPages && <Text>all data has been displayed</Text>}
+		</View>
+	);
 
 	const loadData = async () => {
 		setLoading(true);
 		let token = await getToken();
 		axios
-			.get(baseUrl() + "listing/listing", {
+			.get(baseUrl() + "transactions/all", {
 				params: {
+					sellerUsername: sellerUsername,
 					page: page,
 				},
 				headers: {
@@ -124,6 +158,8 @@ export default function TransactionsScreen() {
 			})
 			.then(function (response) {
 				if (response.data.success == true) {
+					setTotalPages(response.data.data.totalPages);
+
 					if (page == 1) {
 						setData(response.data.data.rows);
 					} else {
@@ -144,7 +180,30 @@ export default function TransactionsScreen() {
 	};
 
 	const deleteRow = async () => {
-		//
+		setLoading(true);
+		let token = await getToken();
+		axios
+			.delete(baseUrl() + "transactions/" + modalId, {
+				headers: {
+					Authorization: "Bearer " + token,
+				},
+			})
+			.then(function (response) {
+				if (response.data.success == true) {
+					loadData();
+				} else {
+					showAlert("Failed", response.data.message);
+				}
+			})
+			.catch(function (error) {
+				if (error.response) {
+					showAlert("Failed", error.response.data.message);
+				}
+			})
+			.finally(function () {
+				setLoading(false);
+				setConfirmDelete(false);
+			});
 	};
 
 	return (
@@ -187,39 +246,19 @@ export default function TransactionsScreen() {
 				</Modal>
 
 				<ThemedView style={styles.titleContainer}>
-					<ThemedText type="title">Product</ThemedText>
+					<ThemedText type="title">Transaction</ThemedText>
 				</ThemedView>
-				<ThemedText>Product management page</ThemedText>
+				<ThemedText>Transaction management page</ThemedText>
 
 				<View style={styles.containerSearch}>
 					<ThemedText type="subtitle">Search Form</ThemedText>
 					<TextInput
 						style={[styles.input, themeTextInput]}
-						onChangeText={onChangeEmail}
-						value={email}
-						placeholder="Email"
+						onChangeText={setSellerUsername}
+						value={sellerUsername}
+						placeholder="Seller User Name"
 						placeholderTextColor="#777"
 					/>
-					<Picker
-						selectedValue={usergroup}
-						style={[themeTextSelect]}
-						onValueChange={(itemValue, itemIndex) => {
-							if (itemIndex > 0) {
-								setUsergroup(itemValue);
-							} else {
-								setUsergroup("");
-							}
-						}}
-					>
-						<Picker.Item label="All Group" value="-" />
-						<Picker.Item label="Seller" value="seller" />
-						<Picker.Item label="Receiver" value="receiver" />
-						<Picker.Item label="Buyer" value="buyer" />
-						<Picker.Item
-							label="Administrator"
-							value="administrator"
-						/>
-					</Picker>
 
 					<TouchableOpacity
 						disabled={loading}
@@ -230,25 +269,31 @@ export default function TransactionsScreen() {
 					</TouchableOpacity>
 
 					<ThemedText
-						onPress={() => router.replace("/user/0")}
+						onPress={() => router.replace("/transaction/0")}
 						type="link"
 					>
-						Create new user
+						Create New Transaction
 					</ThemedText>
 				</View>
 				<FlatList
 					data={data}
+					ListFooterComponent={renderFooter}
 					onEndReachedThreshold={0.1}
 					onEndReached={moreData}
 					onRefresh={refreshData}
 					refreshing={loading}
 					renderItem={({ item }) => (
 						<Item
-							productid={item.productid}
+							id={item.id}
 							sid={item.sid}
-							tipe={item.tipe}
-							headline={item.headline}
-							price={item.price}
+							transID={item.transID}
+							sellerName={item.sellerName}
+							receiverName={item.receiverName}
+							buyerName={item.buyerName}
+							productName={item.productName}
+							weight={item.weight}
+							amount={item.amount}
+							status={item.status}
 						/>
 					)}
 					keyExtractor={(item) => item.sid}

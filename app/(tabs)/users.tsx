@@ -18,7 +18,7 @@ import { baseUrl, showAlert, getToken } from "../../utils";
 import { Picker } from "@react-native-picker/picker";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { router } from "expo-router";
+import { router, useNavigation, usePathname } from "expo-router";
 
 type ItemProps = {
 	userid: string;
@@ -100,10 +100,15 @@ export default function UsersScreen() {
 		setModalTitle(name);
 	};
 
+	const navigation = useNavigation();
+	const focused = navigation.isFocused();
+	const path = usePathname();
+
 	useEffect(() => {
-		setData([]);
-		loadData();
-	}, []);
+		if (path == "/users" && focused == true) {
+			loadData();
+		}
+	}, [focused]);
 
 	const loadData = async () => {
 		setLoading(true);

@@ -7,56 +7,109 @@ import {
 	TouchableOpacity,
 	Text,
 	SafeAreaView,
-	TouchableWithoutFeedback,
 	ScrollView,
 } from "react-native";
-import { Image } from "expo-image";
+
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 
 import axios from "axios";
-import { useRouter, Link, useLocalSearchParams, Redirect } from "expo-router";
+import {
+	router,
+	Link,
+	useLocalSearchParams,
+	useNavigation,
+	usePathname,
+} from "expo-router";
 import { baseUrl, showAlert, getToken } from "../../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { POST } from "../../../utils/http";
 
-export default function ProductFormcreen() {
-	const router = useRouter();
-
-	const [name, setName] = useState("");
-	const [price, setPrice] = useState("");
+export default function TransactionFormScreen() {
+	const [sellerId, setSellerId] = useState("");
+	const [productId, setProductId] = useState("");
+	const [weight, setWeight] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [products, setProducts] = useState([]);
 
 	const { id } = useLocalSearchParams();
 
 	const colorScheme = useColorScheme();
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
+	const themeTextSelect =
+		colorScheme === "light" ? styles.selectLight : styles.selectDark;
+
+	const navigation = useNavigation();
+	const focused = navigation.isFocused();
+	const path = usePathname();
 
 	useEffect(() => {
+		if (focused) {
+			loadProduct();
+		}
+
 		if (id != "0") {
 			loadData(id);
 		} else {
-			setName("");
-			setPrice("");
+			setSellerId("");
+			setProductId("");
+			setWeight("");
 		}
-	}, [id]);
+	}, [focused]);
 
-	const loadData = async (id: any) => {
+	const loadProduct = async () => {
 		setLoading(true);
 		let token = await getToken();
 		axios
-			.get(baseUrl() + "product/" + id, {
+			.get(baseUrl() + "product/all", {
 				headers: {
 					Authorization: "Bearer " + token,
 				},
 			})
 			.then(function (response) {
 				if (response.data.success == true) {
-					setName(response.data.data.name);
-					setPrice(response.data.data.price.toString());
+					setProducts(response.data.data.rows);
+				} else {
+					showAlert("Failed", response.data.message);
+				}
+			})
+			.catch(function (error) {
+				if (error.response) {
+					showAlert("Failed", error.response.data.message);
+				}
+			})
+			.finally(function () {
+				setLoading(false);
+			});
+	};
+
+	type ListProps = {
+		id: string;
+		name: string;
+	};
+
+	const renderList = () => {
+		return products.map(({ id, name }: ListProps) => {
+			return <Picker.Item key={id} label={name} value={id} />;
+		});
+	};
+
+	const loadData = async (id: any) => {
+		setLoading(true);
+		let token = await getToken();
+		axios
+			.get(baseUrl() + "transactions/" + id, {
+				headers: {
+					Authorization: "Bearer " + token,
+				},
+			})
+			.then(function (response) {
+				if (response.data.success == true) {
+					setSellerId(response.data.data.seller._id);
+					setProductId(response.data.data.product._id);
+					setWeight(response.data.data.weight.toString());
 				} else {
 					showAlert("Failed", response.data.message);
 				}
@@ -73,11 +126,12 @@ export default function ProductFormcreen() {
 
 	const onPress = async () => {
 		setLoading(true);
+
 		let token = await getToken();
 
-		let uri = "product/edit";
+		let uri = "transactions/edit";
 		if (id == "0") {
-			uri = "product/add";
+			uri = "transactions/add";
 		}
 
 		axios
@@ -85,8 +139,9 @@ export default function ProductFormcreen() {
 				baseUrl() + uri,
 				{
 					_id: id,
-					name: name,
-					price: price,
+					sellerId: sellerId,
+					productId: productId,
+					weight: weight,
 				},
 				{
 					headers: {
@@ -97,9 +152,7 @@ export default function ProductFormcreen() {
 			)
 			.then(async function (response) {
 				if (response.data.success == true) {
-					router.replace("/products?query=refresh");
-
-					//return <Redirect href="/users" />;
+					router.replace("/transactions");
 				} else {
 					showAlert("Failed", response.data.message);
 				}
@@ -121,22 +174,37 @@ export default function ProductFormcreen() {
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
 				<ThemedView style={styles.mainContainer}>
-					<ThemedText type="title">Product Form</ThemedText>
-					<ThemedText>Update user data</ThemedText>
+					<ThemedText type="title">Transaction Form</ThemedText>
+					<ThemedText>Update transaction data</ThemedText>
 
 					<TextInput
 						style={[styles.input, themeTextInput]}
-						onChangeText={setName}
-						value={name}
-						placeholder="Name"
+						onChangeText={setSellerId}
+						value={sellerId}
+						placeholder="Seller"
 						placeholderTextColor="#777"
 					/>
 
+					<Picker
+						accessibilityLabel="Basic Picker Accessibility Label"
+						selectedValue={productId}
+						style={[themeTextSelect]}
+						onValueChange={(itemValue, itemIndex) => {
+							if (itemIndex > 0) {
+								setProductId(itemValue);
+							} else {
+								setProductId("");
+							}
+						}}
+					>
+						{renderList()}
+					</Picker>
+
 					<TextInput
 						style={[styles.input, themeTextInput]}
-						onChangeText={setPrice}
-						value={price}
-						placeholder="Price"
+						onChangeText={setWeight}
+						value={weight}
+						placeholder="Weight"
 						placeholderTextColor="#777"
 						keyboardType="numeric"
 					/>
