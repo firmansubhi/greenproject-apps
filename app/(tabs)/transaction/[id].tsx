@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import {
+	Button,
 	View,
 	StyleSheet,
 	TextInput,
@@ -13,6 +14,7 @@ import {
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Picker } from "@react-native-picker/picker";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 
 import axios from "axios";
 import {
@@ -27,6 +29,11 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { POST } from "../../../utils/http";
 
 export default function TransactionFormScreen() {
+	const [facing, setFacing] = useState<CameraType>("back");
+	const [permission, requestPermission] = useCameraPermissions();
+
+	const [cameraActive, setCameraActive] = useState(true);
+
 	const [sellerId, setSellerId] = useState("");
 	const [productId, setProductId] = useState("");
 	const [weight, setWeight] = useState("");
@@ -45,13 +52,27 @@ export default function TransactionFormScreen() {
 	const focused = navigation.isFocused();
 	const path = usePathname();
 
+	function toggleCameraFacing() {
+		setFacing((current) => (current === "back" ? "front" : "back"));
+	}
+
 	useEffect(() => {
 		if (focused) {
 			loadProduct();
+
+			setCameraActive(true);
+
+			if (!permission) {
+				requestPermission();
+				showAlert("Allow Camera", "Please enable camera permission");
+			} else {
+				setCameraActive(true);
+			}
 		}
 
 		if (id != "0") {
 			loadData(id);
+			setCameraActive(false);
 		} else {
 			setSellerId("");
 			setProductId("");
@@ -170,12 +191,45 @@ export default function TransactionFormScreen() {
 		setLoading(false);
 	};
 
+	const qrScanned = (result: any) => {
+		setCameraActive(false);
+		setSellerId(result.data);
+		//showAlert("bisa", "ada nih");
+	};
+
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
 				<ThemedView style={styles.mainContainer}>
 					<ThemedText type="title">Transaction Form</ThemedText>
 					<ThemedText>Update transaction data</ThemedText>
+
+					{cameraActive && (
+						<View style={styles.containerCamera}>
+							<CameraView
+								active={cameraActive}
+								style={styles.camera}
+								facing={facing}
+								barcodeScannerSettings={{
+									barcodeTypes: ["qr"],
+								}}
+								onBarcodeScanned={(scanningResult) =>
+									qrScanned(scanningResult)
+								}
+							>
+								<View style={styles.buttonContainer}>
+									<TouchableOpacity
+										style={styles.buttonCamera}
+										onPress={toggleCameraFacing}
+									>
+										<Text style={styles.text}>
+											Flip Camera
+										</Text>
+									</TouchableOpacity>
+								</View>
+							</CameraView>
+						</View>
+					)}
 
 					<TextInput
 						style={[styles.input, themeTextInput]}
@@ -223,6 +277,35 @@ export default function TransactionFormScreen() {
 }
 
 const styles = StyleSheet.create({
+	buttonContainer: {
+		flex: 1,
+		flexDirection: "row",
+		backgroundColor: "transparent",
+		margin: 64,
+	},
+
+	buttonCamera: {
+		flex: 1,
+		alignSelf: "flex-end",
+		alignItems: "center",
+	},
+	text: {
+		fontSize: 24,
+		fontWeight: "bold",
+		color: "white",
+	},
+	containerCamera: {
+		flex: 1,
+		justifyContent: "center",
+		height: 320,
+	},
+	message: {
+		textAlign: "center",
+		paddingBottom: 10,
+	},
+	camera: {
+		flex: 1,
+	},
 	saveContainer: {
 		flex: 1,
 	},

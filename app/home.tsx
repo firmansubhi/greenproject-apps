@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+	Button,
 	View,
 	StyleSheet,
 	TextInput,
@@ -8,32 +9,13 @@ import {
 	Text,
 	ScrollView,
 } from "react-native";
+
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import axios from "axios";
-import { useSession } from "./ctx";
 import { router } from "expo-router";
-import { baseUrl, showAlert } from "../utils";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Link } from "expo-router";
 
 export default function homeScreen() {
-	const { signIn } = useSession();
-	const [username, onChangeUsername] = useState("");
-	const [password, onChangePassword] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
-	const [loading, setLoading] = useState(false);
-
-	const colorScheme = useColorScheme();
-	const themeTextInput =
-		colorScheme === "light" ? styles.inputLight : styles.inputDark;
-
-	const toggleShowPassword = () => {
-		setShowPassword(!showPassword);
-	};
-
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
@@ -164,7 +146,6 @@ export default function homeScreen() {
 						}}
 					>
 						<TouchableOpacity
-							disabled={loading}
 							style={[styles.button, { marginBottom: 5 }]}
 							onPress={() => router.replace("/login")}
 						>

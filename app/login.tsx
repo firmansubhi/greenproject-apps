@@ -43,7 +43,7 @@ export default function LoginScreen() {
 			})
 			.then(async function (response) {
 				if (response.data.success == true) {
-					signIn(username, response.data.token);
+					signIn(username, response.data.role, response.data.token);
 					router.replace("/");
 				} else {
 					showAlert("Failed", response.data.message);

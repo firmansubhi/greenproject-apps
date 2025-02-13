@@ -13,7 +13,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 export default function TabLayout() {
 	const colorScheme = useColorScheme();
 
-	const { session, isLoading } = useSession();
+	const { session, role } = useSession();
 
 	if (!session) {
 		return <Redirect href="/home" />;
@@ -45,19 +45,6 @@ export default function TabLayout() {
 					),
 				}}
 			/>
-			<Tabs.Screen
-				name="explore"
-				options={{
-					title: "Explore",
-					tabBarIcon: ({ color }) => (
-						<IconSymbol
-							size={28}
-							name="paperplane.fill"
-							color={color}
-						/>
-					),
-				}}
-			/>
 
 			<Tabs.Screen
 				name="transactions"
@@ -68,6 +55,7 @@ export default function TabLayout() {
 					),
 				}}
 			/>
+
 			<Tabs.Screen
 				name="transaction/[id]"
 				options={{
@@ -75,15 +63,25 @@ export default function TabLayout() {
 				}}
 			/>
 
-			<Tabs.Screen
-				name="users"
-				options={{
-					title: "Users",
-					tabBarIcon: ({ color }) => (
-						<Ionicons size={28} name="people" color={color} />
-					),
-				}}
-			/>
+			{role == "administrator" ? (
+				<Tabs.Screen
+					name="users"
+					options={{
+						title: "Users",
+						tabBarIcon: ({ color }) => (
+							<Ionicons size={28} name="people" color={color} />
+						),
+					}}
+				/>
+			) : (
+				<Tabs.Screen
+					name="users"
+					options={{
+						href: null,
+					}}
+				/>
+			)}
+
 			<Tabs.Screen
 				name="user/[id]"
 				options={{
@@ -91,15 +89,28 @@ export default function TabLayout() {
 				}}
 			/>
 
-			<Tabs.Screen
-				name="products"
-				options={{
-					title: "Products",
-					tabBarIcon: ({ color }) => (
-						<Ionicons size={28} name="briefcase" color={color} />
-					),
-				}}
-			/>
+			{role == "administrator" ? (
+				<Tabs.Screen
+					name="products"
+					options={{
+						title: "Products",
+						tabBarIcon: ({ color }) => (
+							<Ionicons
+								size={28}
+								name="briefcase"
+								color={color}
+							/>
+						),
+					}}
+				/>
+			) : (
+				<Tabs.Screen
+					name="products"
+					options={{
+						href: null,
+					}}
+				/>
+			)}
 
 			<Tabs.Screen
 				name="product/[id]"
@@ -118,6 +129,16 @@ export default function TabLayout() {
 							name="qr-code-outline"
 							color={color}
 						/>
+					),
+				}}
+			/>
+
+			<Tabs.Screen
+				name="logout"
+				options={{
+					title: "Sign Out",
+					tabBarIcon: ({ color }) => (
+						<Ionicons size={28} name="log-out" color={color} />
 					),
 				}}
 			/>
