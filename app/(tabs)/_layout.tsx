@@ -69,7 +69,7 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name="transaction/[idTrans]"
+				name="transaction/[id]"
 				options={{
 					href: null,
 				}}
@@ -105,6 +105,20 @@ export default function TabLayout() {
 				name="product/[id]"
 				options={{
 					href: null,
+				}}
+			/>
+
+			<Tabs.Screen
+				name="myQRCode"
+				options={{
+					title: "QRCode",
+					tabBarIcon: ({ color }) => (
+						<Ionicons
+							size={28}
+							name="qr-code-outline"
+							color={color}
+						/>
+					),
 				}}
 			/>
 		</Tabs>

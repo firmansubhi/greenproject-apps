@@ -15,7 +15,6 @@ import { ThemedView } from "@/components/ThemedView";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import axios from "axios";
 import { baseUrl, showAlert, getToken } from "../../utils";
-import { Picker } from "@react-native-picker/picker";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router, useNavigation, usePathname } from "expo-router";
@@ -31,6 +30,7 @@ type ItemProps = {
 	weight: number;
 	amount: number;
 	status: string;
+	createdAt: string;
 };
 
 export default function TransactionsScreen() {
@@ -53,6 +53,7 @@ export default function TransactionsScreen() {
 			weight: 0,
 			amount: 0,
 			status: "",
+			createdAt: "",
 		},
 	]);
 
@@ -68,36 +69,125 @@ export default function TransactionsScreen() {
 			weight,
 			amount,
 			status,
+			createdAt,
 		}: ItemProps) => (
-			<View style={[styles.listItem, styles.shadows]}>
-				<View style={styles.textItem}>
+			<View
+				style={[
+					styles.shadows,
+					{
+						padding: 20,
+						margin: 10,
+						width: "100%",
+						//flex: 1,
+						alignSelf: "center",
+						//flexDirection: "column",
+						borderRadius: 2,
+					},
+				]}
+			>
+				<View
+					style={{
+						flex: 1,
+						flexDirection: "row-reverse",
+						borderBottomColor: "#efefef",
+						borderBottomWidth: 1,
+						paddingBottom: 5,
+					}}
+				>
+					<TouchableOpacity
+						onPress={() => deleteData(id, transID)}
+						style={{
+							width: 50,
+							justifyContent: "flex-end",
+							alignItems: "flex-end",
+						}}
+					>
+						<FontAwesome6
+							name="trash-can"
+							size={16}
+							color="green"
+						/>
+					</TouchableOpacity>
+
+					<Link
+						href={{
+							pathname: "/transaction/[id]",
+							params: { id: id },
+						}}
+					>
+						<FontAwesome6 name="edit" size={16} color="green" />
+					</Link>
+				</View>
+				<View
+					style={{
+						flex: 1,
+						flexDirection: "row",
+					}}
+				>
 					<ThemedText style={{ fontWeight: "bold" }}>
 						{transID}
 					</ThemedText>
-					<ThemedText>{productName}</ThemedText>
-					<ThemedText>{weight}</ThemedText>
-					<ThemedText> {status}</ThemedText>
 				</View>
-				<TouchableOpacity
-					onPress={() => deleteData(id, transID)}
-					style={{
-						height: 50,
-						width: 100,
-						justifyContent: "flex-start",
-						alignItems: "center",
-					}}
-				>
-					<FontAwesome6 name="trash-can" size={16} color="green" />
-				</TouchableOpacity>
+				<View>
+					<View style={styles.subtitle}>
+						<View style={styles.subtitleLeft}>
+							<ThemedText>Seller</ThemedText>
+						</View>
+						<View style={styles.subtitleRight}>
+							<ThemedText>{sellerName}</ThemedText>
+						</View>
+					</View>
 
-				<Link
-					href={{
-						pathname: "/transaction/[id]",
-						params: { id: id },
-					}}
-				>
-					<FontAwesome6 name="edit" size={16} color="green" />
-				</Link>
+					<View style={styles.subtitle}>
+						<View style={styles.subtitleLeft}>
+							<ThemedText>Receiver</ThemedText>
+						</View>
+						<View style={styles.subtitleRight}>
+							<ThemedText>{receiverName}</ThemedText>
+						</View>
+					</View>
+
+					<View style={styles.subtitle}>
+						<View style={styles.subtitleLeft}>
+							<ThemedText>Buyer</ThemedText>
+						</View>
+						<View style={styles.subtitleRight}>
+							<ThemedText>{buyerName}</ThemedText>
+						</View>
+					</View>
+
+					<View style={styles.subtitle}>
+						<View style={styles.subtitleLeft}>
+							<ThemedText>Product</ThemedText>
+						</View>
+						<View style={styles.subtitleRight}>
+							<ThemedText>
+								{productName} {weight}gr
+							</ThemedText>
+						</View>
+					</View>
+
+					<View style={styles.subtitle}>
+						<View style={styles.subtitleLeft}>
+							<ThemedText>Price</ThemedText>
+						</View>
+						<View style={styles.subtitleRight}>
+							<ThemedText>{amount}</ThemedText>
+						</View>
+					</View>
+					<View style={styles.subtitle}>
+						<View style={styles.subtitleLeft}>
+							<ThemedText>Status</ThemedText>
+						</View>
+						<View style={styles.subtitleRight}>
+							<ThemedText>{status}</ThemedText>
+						</View>
+					</View>
+
+					<ThemedText style={{ paddingTop: 20 }}>
+						{createdAt}
+					</ThemedText>
+				</View>
 			</View>
 		),
 		(prevProps, nextProps) => {
@@ -294,6 +384,7 @@ export default function TransactionsScreen() {
 							weight={item.weight}
 							amount={item.amount}
 							status={item.status}
+							createdAt={item.createdAt}
 						/>
 					)}
 					keyExtractor={(item) => item.sid}
@@ -304,6 +395,18 @@ export default function TransactionsScreen() {
 }
 
 const styles = StyleSheet.create({
+	subtitle: {
+		flex: 1,
+		flexDirection: "row",
+	},
+
+	subtitleLeft: {
+		flex: 1,
+	},
+	subtitleRight: {
+		flex: 3,
+	},
+
 	saveContainer: {
 		flex: 1,
 	},
