@@ -37,9 +37,10 @@ export default function TransactionsScreen() {
 	const [loading, setLoading] = useState(false);
 	const [page, setPage] = useState(1);
 	const [sellerUsername, setSellerUsername] = useState("");
-	const [confirmDelete, setConfirmDelete] = useState(false);
+	const [confirm, setConfirm] = useState(false);
+	const [confirmAction, setConfirmAction] = useState("");
+	const [confirmMessage, setConfirmMessage] = useState("");
 	const [modalId, setModalId] = useState("");
-	const [modalTitle, setModalTitle] = useState("");
 	const [totalPages, setTotalPages] = useState(0);
 	const [data, setData] = useState([
 		{
@@ -71,29 +72,8 @@ export default function TransactionsScreen() {
 			status,
 			createdAt,
 		}: ItemProps) => (
-			<View
-				style={[
-					styles.shadows,
-					{
-						padding: 20,
-						margin: 10,
-						width: "100%",
-						//flex: 1,
-						alignSelf: "center",
-						//flexDirection: "column",
-						borderRadius: 2,
-					},
-				]}
-			>
-				<View
-					style={{
-						flex: 1,
-						flexDirection: "row-reverse",
-						borderBottomColor: "#efefef",
-						borderBottomWidth: 1,
-						paddingBottom: 5,
-					}}
-				>
+			<View style={[styles.shadows, styles.listItem]}>
+				<View style={styles.listTop}>
 					<TouchableOpacity
 						onPress={() => deleteData(id, transID)}
 						style={{
@@ -131,7 +111,7 @@ export default function TransactionsScreen() {
 				<View>
 					<View style={styles.subtitle}>
 						<View style={styles.subtitleLeft}>
-							<ThemedText>Seller</ThemedText>
+							<ThemedText style={styles.grey}>Seller</ThemedText>
 						</View>
 						<View style={styles.subtitleRight}>
 							<ThemedText>{sellerName}</ThemedText>
@@ -140,7 +120,9 @@ export default function TransactionsScreen() {
 
 					<View style={styles.subtitle}>
 						<View style={styles.subtitleLeft}>
-							<ThemedText>Receiver</ThemedText>
+							<ThemedText style={styles.grey}>
+								Receiver
+							</ThemedText>
 						</View>
 						<View style={styles.subtitleRight}>
 							<ThemedText>{receiverName}</ThemedText>
@@ -149,7 +131,7 @@ export default function TransactionsScreen() {
 
 					<View style={styles.subtitle}>
 						<View style={styles.subtitleLeft}>
-							<ThemedText>Buyer</ThemedText>
+							<ThemedText style={styles.grey}>Buyer</ThemedText>
 						</View>
 						<View style={styles.subtitleRight}>
 							<ThemedText>{buyerName}</ThemedText>
@@ -158,7 +140,7 @@ export default function TransactionsScreen() {
 
 					<View style={styles.subtitle}>
 						<View style={styles.subtitleLeft}>
-							<ThemedText>Product</ThemedText>
+							<ThemedText style={styles.grey}>Product</ThemedText>
 						</View>
 						<View style={styles.subtitleRight}>
 							<ThemedText>
@@ -169,7 +151,7 @@ export default function TransactionsScreen() {
 
 					<View style={styles.subtitle}>
 						<View style={styles.subtitleLeft}>
-							<ThemedText>Price</ThemedText>
+							<ThemedText style={styles.grey}>Price</ThemedText>
 						</View>
 						<View style={styles.subtitleRight}>
 							<ThemedText>{amount}</ThemedText>
@@ -177,16 +159,30 @@ export default function TransactionsScreen() {
 					</View>
 					<View style={styles.subtitle}>
 						<View style={styles.subtitleLeft}>
-							<ThemedText>Status</ThemedText>
+							<ThemedText style={styles.grey}>Status</ThemedText>
 						</View>
 						<View style={styles.subtitleRight}>
 							<ThemedText>{status}</ThemedText>
 						</View>
 					</View>
 
-					<ThemedText style={{ paddingTop: 20 }}>
-						{createdAt}
-					</ThemedText>
+					<View style={[styles.listFooter]}>
+						<View style={styles.listFooterLeft}>
+							<ThemedText>{createdAt}</ThemedText>
+						</View>
+						<View style={styles.listFooterRight}>
+							{status !== "finalized" && (
+								<TouchableOpacity
+									style={styles.button}
+									onPress={() => finalizeData(id, transID)}
+								>
+									<Text style={styles.buttonText}>
+										Finalize
+									</Text>
+								</TouchableOpacity>
+							)}
+						</View>
+					</View>
 				</View>
 			</View>
 		),
@@ -201,9 +197,17 @@ export default function TransactionsScreen() {
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
 
 	const deleteData = async (id: string, name: string) => {
-		setConfirmDelete(true);
+		setConfirm(true);
+		setConfirmAction("delete");
 		setModalId(id.toString());
-		setModalTitle(name);
+		setConfirmMessage("Delete " + name + " ?");
+	};
+
+	const finalizeData = async (id: string, name: string) => {
+		setConfirm(true);
+		setConfirmAction("finalize");
+		setModalId(id.toString());
+		setConfirmMessage("Finilize " + name + " ?");
 	};
 
 	const navigation = useNavigation();
@@ -269,6 +273,16 @@ export default function TransactionsScreen() {
 			});
 	};
 
+	const confirmPress = () => {
+		if (confirmAction == "delete") {
+			deleteRow();
+		}
+
+		if (confirmAction == "finalize") {
+			finalizeRow();
+		}
+	};
+
 	const deleteRow = async () => {
 		setLoading(true);
 		let token = await getToken();
@@ -292,7 +306,34 @@ export default function TransactionsScreen() {
 			})
 			.finally(function () {
 				setLoading(false);
-				setConfirmDelete(false);
+				setConfirm(false);
+			});
+	};
+
+	const finalizeRow = async () => {
+		setLoading(true);
+		let token = await getToken();
+		axios
+			.get(baseUrl() + "transactions/finalize/" + modalId, {
+				headers: {
+					Authorization: "Bearer " + token,
+				},
+			})
+			.then(function (response) {
+				if (response.data.success == true) {
+					loadData();
+				} else {
+					showAlert("Failed", response.data.message);
+				}
+			})
+			.catch(function (error) {
+				if (error.response) {
+					showAlert("Failed", error.response.data.message);
+				}
+			})
+			.finally(function () {
+				setLoading(false);
+				setConfirm(false);
 			});
 	};
 
@@ -302,12 +343,12 @@ export default function TransactionsScreen() {
 				<Modal
 					animationType="fade"
 					transparent={true}
-					visible={confirmDelete}
+					visible={confirm}
 				>
 					<View style={styles.centeredView}>
 						<View style={styles.modalView}>
 							<Text style={styles.modalText}>
-								Delete {modalTitle} ?
+								{confirmMessage}
 							</Text>
 							<View style={styles.modalButtonView}>
 								<Pressable
@@ -315,7 +356,7 @@ export default function TransactionsScreen() {
 										styles.buttonConfirm,
 										styles.buttonContinue,
 									]}
-									onPress={() => deleteRow()}
+									onPress={() => confirmPress()}
 								>
 									<Text style={styles.textStyle}>
 										Continue
@@ -326,7 +367,7 @@ export default function TransactionsScreen() {
 										styles.buttonConfirm,
 										styles.buttonClose,
 									]}
-									onPress={() => setConfirmDelete(false)}
+									onPress={() => setConfirm(false)}
 								>
 									<Text style={styles.textStyle}>Cancel</Text>
 								</Pressable>
@@ -350,20 +391,41 @@ export default function TransactionsScreen() {
 						placeholderTextColor="#777"
 					/>
 
-					<TouchableOpacity
-						disabled={loading}
-						style={styles.button}
-						onPress={loadData}
+					<View
+						style={{
+							flexDirection: "row",
+						}}
 					>
-						<Text style={styles.buttonText}>Search</Text>
-					</TouchableOpacity>
-
-					<ThemedText
-						onPress={() => router.replace("/transaction/0")}
-						type="link"
-					>
-						Create New Transaction
-					</ThemedText>
+						<View
+							style={{
+								flex: 1,
+								paddingRight: 5,
+							}}
+						>
+							<TouchableOpacity
+								disabled={loading}
+								style={styles.button}
+								onPress={loadData}
+							>
+								<Text style={styles.buttonText}>Search</Text>
+							</TouchableOpacity>
+						</View>
+						<View
+							style={{
+								flex: 1,
+								paddingLeft: 5,
+							}}
+						>
+							<TouchableOpacity
+								style={styles.button}
+								onPress={() => router.replace("/transaction/0")}
+							>
+								<Text style={styles.buttonText}>
+									Create New Transaction
+								</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
 				</View>
 				<FlatList
 					data={data}
@@ -395,6 +457,27 @@ export default function TransactionsScreen() {
 }
 
 const styles = StyleSheet.create({
+	listTop: {
+		flex: 1,
+		flexDirection: "row-reverse",
+		borderBottomColor: "#efefef",
+		borderBottomWidth: 1,
+		paddingBottom: 5,
+	},
+
+	listFooter: {
+		flexDirection: "row",
+	},
+
+	listFooterLeft: {
+		flex: 2,
+		justifyContent: "flex-end",
+	},
+
+	listFooterRight: {
+		flex: 1,
+		flexDirection: "row-reverse",
+	},
 	subtitle: {
 		flex: 1,
 		flexDirection: "row",
@@ -405,6 +488,10 @@ const styles = StyleSheet.create({
 	},
 	subtitleRight: {
 		flex: 3,
+	},
+
+	grey: {
+		color: "#aaa",
 	},
 
 	saveContainer: {
@@ -488,7 +575,7 @@ const styles = StyleSheet.create({
 		width: "100%",
 		//flex: 1,
 		alignSelf: "center",
-		flexDirection: "row",
+		//flexDirection: "column",
 		borderRadius: 2,
 	},
 	textItem: { flex: 1 },
