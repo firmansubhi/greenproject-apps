@@ -1,29 +1,44 @@
 import React, { useState, useEffect } from "react";
 
 import {
+	Button,
 	View,
 	StyleSheet,
 	TextInput,
 	TouchableOpacity,
 	Text,
 	SafeAreaView,
-	TouchableWithoutFeedback,
 	ScrollView,
 } from "react-native";
-import { Image } from "expo-image";
+
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from "expo-image-picker";
+
+import { Image } from "expo-image";
 
 import axios from "axios";
-import { useRouter, Link, useLocalSearchParams, Redirect } from "expo-router";
-import { baseUrl, showAlert, getToken } from "../../../utils";
+import {
+	router,
+	Link,
+	useLocalSearchParams,
+	useNavigation,
+	usePathname,
+} from "expo-router";
+import { baseUrl, showAlert, getToken } from "../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
-export default function ProductFormcreen() {
-	const router = useRouter();
+export default function ReadNewsScreen() {
+	const [title, setTitle] = useState("");
+	const [intro, setIntro] = useState("");
+	const [content, setContent] = useState("");
+	const [publishDate, setPublishDate] = useState(new Date());
+	const [imagePath, setImagePath] = useState(
+		"https://tempdev2.roomie.id/images/blank-qr.png"
+	);
 
-	const [name, setName] = useState("");
-	const [price, setPrice] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	const { id } = useLocalSearchParams();
@@ -31,29 +46,34 @@ export default function ProductFormcreen() {
 	const colorScheme = useColorScheme();
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
+	const themeTextSelect =
+		colorScheme === "light" ? styles.selectLight : styles.selectDark;
 
 	useEffect(() => {
 		if (id != "0") {
 			loadData(id);
-		} else {
-			setName("");
-			setPrice("");
 		}
-	}, [id]);
+	}, []);
 
 	const loadData = async (id: any) => {
 		setLoading(true);
-		let token = await getToken();
+
 		axios
-			.get(baseUrl() + "product/" + id, {
-				headers: {
-					Authorization: "Bearer " + token,
-				},
-			})
+			.get(baseUrl() + "newsadmin/view/" + id, {})
 			.then(function (response) {
 				if (response.data.success == true) {
-					setName(response.data.data.name);
-					setPrice(response.data.data.price.toString());
+					if (response.data.data.imagePath == "") {
+						setImagePath(
+							"https://tempdev2.roomie.id/images/blank-qr.png"
+						);
+					} else {
+						setImagePath(response.data.data.imagePath);
+					}
+
+					setTitle(response.data.data.title);
+					setIntro(response.data.data.intro);
+					setContent(response.data.data.content);
+					setPublishDate(new Date(response.data.data.publishDate));
 				} else {
 					showAlert("Failed", response.data.message);
 				}
@@ -68,83 +88,29 @@ export default function ProductFormcreen() {
 			});
 	};
 
-	const onPress = async () => {
-		setLoading(true);
-		let token = await getToken();
-
-		let uri = "product/edit";
-		if (id == "0") {
-			uri = "product/add";
-		}
-
-		axios
-			.post(
-				baseUrl() + uri,
-				{
-					_id: id,
-					name: name,
-					price: price,
-				},
-				{
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: "Bearer " + token,
-					},
-				}
-			)
-			.then(async function (response) {
-				if (response.data.success == true) {
-					router.replace("/products?query=refresh");
-
-					//return <Redirect href="/users" />;
-				} else {
-					showAlert("Failed", response.data.message);
-				}
-
-				setLoading(false);
-			})
-			.catch(function (error) {
-				console.log(error);
-				setLoading(false);
-				if (error.response) {
-					showAlert("Failed", error.response.data.message);
-				}
-			});
-
-		setLoading(false);
-	};
-
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
 				<ThemedView style={styles.mainContainer}>
-					<ThemedText type="title">Product Form</ThemedText>
-					<ThemedText>Update user data</ThemedText>
+					<ThemedText type="title">{title}</ThemedText>
 
-					<TextInput
-						style={[styles.input, themeTextInput]}
-						onChangeText={setName}
-						value={name}
-						placeholder="Name"
-						placeholderTextColor="#777"
-					/>
-
-					<TextInput
-						style={[styles.input, themeTextInput]}
-						onChangeText={setPrice}
-						value={price}
-						placeholder="Price"
-						placeholderTextColor="#777"
-						keyboardType="numeric"
-					/>
-
-					<TouchableOpacity
-						disabled={loading}
-						style={styles.button}
-						onPress={onPress}
+					<View
+						style={{
+							alignItems: "center",
+							flex: 1,
+						}}
 					>
-						<Text style={styles.buttonText}>Save</Text>
-					</TouchableOpacity>
+						<View style={styles.imageContainer}>
+							<Image
+								style={styles.image}
+								source={{ uri: imagePath }}
+								contentFit="none"
+								transition={1000}
+							/>
+						</View>
+					</View>
+					<ThemedText>{intro}</ThemedText>
+					<ThemedText>{content}</ThemedText>
 				</ThemedView>
 			</ScrollView>
 		</SafeAreaView>
@@ -152,14 +118,44 @@ export default function ProductFormcreen() {
 }
 
 const styles = StyleSheet.create({
+	buttonContainer: {
+		flex: 1,
+		flexDirection: "row",
+		backgroundColor: "transparent",
+		margin: 64,
+	},
+
+	buttonCamera: {
+		flex: 1,
+		alignSelf: "flex-end",
+		alignItems: "center",
+	},
+	text: {
+		fontSize: 24,
+		fontWeight: "bold",
+		color: "white",
+	},
+	containerCamera: {
+		flex: 1,
+		justifyContent: "center",
+		height: 320,
+	},
+	message: {
+		textAlign: "center",
+		paddingBottom: 10,
+	},
+	camera: {
+		flex: 1,
+	},
 	saveContainer: {
 		flex: 1,
 	},
 
 	imageContainer: {
 		flex: 1,
-		flexDirection: "row",
-		maxHeight: 200,
+		backgroundColor: "#fff",
+		alignItems: "center",
+		justifyContent: "center",
 	},
 	mainContainer: {
 		padding: 30,
@@ -238,7 +234,8 @@ const styles = StyleSheet.create({
 	},
 	image: {
 		flex: 1,
-		maxHeight: 200,
-		marginBottom: 20,
+		flexDirection: "column",
+		width: 2000,
+		height: 215,
 	},
 });

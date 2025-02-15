@@ -120,6 +120,22 @@ export default function TabLayout() {
 			/>
 
 			<Tabs.Screen
+				name="newsadmin"
+				options={{
+					title: "News",
+					tabBarIcon: ({ color }) => (
+						<Ionicons size={28} name="newspaper" color={color} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="newsadm/[id]"
+				options={{
+					href: null,
+				}}
+			/>
+
+			<Tabs.Screen
 				name="myQRCode"
 				options={{
 					title: "QRCode",

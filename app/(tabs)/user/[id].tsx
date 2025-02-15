@@ -13,7 +13,7 @@ import {
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Picker } from "@react-native-picker/picker";
 
 import axios from "axios";
@@ -226,9 +226,9 @@ export default function RegisterScreen() {
 							placeholderTextColor="#777"
 							secureTextEntry={!showPassword}
 						/>
-						<MaterialCommunityIcons
-							name={showPassword ? "eye-off" : "eye"}
+						<Ionicons
 							size={24}
+							name={showPassword ? "eye-off" : "eye"}
 							color="#aaa"
 							style={styles.icon}
 							onPress={toggleShowPassword}

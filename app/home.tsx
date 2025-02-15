@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	Button,
 	View,
@@ -8,14 +8,40 @@ import {
 	SafeAreaView,
 	Text,
 	ScrollView,
+	TouchableHighlight,
 } from "react-native";
 
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
+import axios from "axios";
+import { baseUrl } from "../utils";
 
 export default function homeScreen() {
+	const [loading, setLoading] = useState(false);
+	const [data, setData] = useState([]);
+
+	useEffect(() => {
+		loadData();
+	}, []);
+
+	const loadData = async () => {
+		setLoading(true);
+
+		axios
+			.get(baseUrl() + "newsadmin/group/all", {})
+			.then(function (response) {
+				if (response.data.success == true) {
+					setData(response.data.data);
+				}
+			})
+			.catch(function (error) {})
+			.finally(function () {
+				setLoading(false);
+			});
+	};
+
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
@@ -26,6 +52,7 @@ export default function homeScreen() {
 						contentFit="cover"
 					/>
 				</ThemedView>
+
 				<ThemedView style={styles.mainContainer}>
 					<ThemedText
 						type="title"
@@ -42,46 +69,30 @@ export default function homeScreen() {
 					>
 						Lets save our earth
 					</ThemedText>
-
-					<View
-						style={[
-							styles.container1,
-							{
-								flexDirection: "row",
-							},
-						]}
-					>
-						<View style={[styles.icon1]}>
+					<View style={[styles.container1]}>
+						<View style={[styles.icon1, styles.iconTop]}>
 							<Image
 								style={[styles.image1, styles.image1b]}
 								source={require("@/assets/images/logo/recycle.png")}
-								contentFit="cover"
+								contentFit="contain"
 							/>
 						</View>
-						<View style={[styles.icon1]}>
+						<View style={[styles.icon1, styles.iconTop]}>
 							<Image
 								style={[styles.image1, styles.image1b]}
 								source={require("@/assets/images/logo/co2a.png")}
-								contentFit="cover"
+								contentFit="contain"
 							/>
 						</View>
-						<View style={[styles.icon1]}>
+						<View style={[styles.icon1, styles.iconTop]}>
 							<Image
 								style={[styles.image1, styles.image1b]}
 								source={require("@/assets/images/logo/forest2.png")}
-								contentFit="cover"
+								contentFit="contain"
 							/>
 						</View>
 					</View>
-
-					<View
-						style={[
-							styles.container2,
-							{
-								flexDirection: "row",
-							},
-						]}
-					>
+					<View style={[styles.container2]}>
 						<View style={[styles.icon1]}>
 							<ThemedText>Recycle</ThemedText>
 						</View>
@@ -138,7 +149,6 @@ export default function homeScreen() {
 							marginBottom: 40,
 						}}
 					></View>
-
 					<View
 						style={{
 							flex: 1,
@@ -160,67 +170,62 @@ export default function homeScreen() {
 						</ThemedText>
 					</View>
 
-					<ThemedText
-						type="subtitle2"
-						style={{
-							borderBottomColor: "#efefef",
-							borderBottomWidth: 1,
-							textAlign: "center",
-						}}
-					>
-						Investment
-					</ThemedText>
+					{data.map((news) => {
+						return (
+							<View>
+								<ThemedText
+									key={news.id}
+									type="subtitle2"
+									style={styles.subtitle}
+								>
+									{news.name}
+								</ThemedText>
 
-					<View style={[styles.container4, styles.shadows]}>
-						<Image
-							style={styles.image2}
-							source={require("@/assets/images/logo/green-energy.png")}
-							contentFit="cover"
-						/>
-						<ThemedText type="subtitle" style={styles.cardText}>
-							Green Energy
-						</ThemedText>
+								{news.detail.map((d) => {
+									return (
+										<TouchableHighlight
+											key={d.sid}
+											activeOpacity={0.6}
+											underlayColor="#DDDDDD"
+											onPress={() =>
+												router.replace(
+													"/read/" + d.newsID
+												)
+											}
+										>
+											<View
+												key={d.sid + "-"}
+												style={[
+													styles.container4,
+													styles.shadows,
+												]}
+											>
+												<Image
+													style={styles.image2}
+													contentFit="cover"
+													source={{
+														uri: d.imageThumb,
+													}}
+												/>
+												<ThemedText
+													type="subtitle"
+													style={styles.cardText}
+												>
+													{d.title}
+												</ThemedText>
 
-						<ThemedText style={styles.cardText}>
-							Green energy is energy that comes from natural
-							resources that are renewable and environmentally
-							friendly.
-						</ThemedText>
-					</View>
-
-					<View style={[styles.container4, styles.shadows]}>
-						<Image
-							style={styles.image2}
-							source={require("@/assets/images/logo/blue-energy.png")}
-							contentFit="cover"
-						/>
-						<ThemedText type="subtitle" style={styles.cardText}>
-							Blue Energy
-						</ThemedText>
-
-						<ThemedText style={styles.cardText}>
-							Our ocean, with its continuous movement of surface
-							winds, tides, and currents, as well as differences
-							in salinity and temperature
-						</ThemedText>
-					</View>
-
-					<View style={[styles.container4, styles.shadows]}>
-						<Image
-							style={styles.image2}
-							source={require("@/assets/images/logo/other.png")}
-							contentFit="cover"
-						/>
-						<ThemedText type="subtitle" style={styles.cardText}>
-							Other Article
-						</ThemedText>
-
-						<ThemedText style={styles.cardText}>
-							Our ocean, with its continuous movement of surface
-							winds, tides, and currents, as well as differences
-							in salinity and temperature
-						</ThemedText>
-					</View>
+												<ThemedText
+													style={styles.cardText}
+												>
+													{d.intro}
+												</ThemedText>
+											</View>
+										</TouchableHighlight>
+									);
+								})}
+							</View>
+						);
+					})}
 				</ThemedView>
 			</ScrollView>
 		</SafeAreaView>
@@ -228,6 +233,29 @@ export default function homeScreen() {
 }
 
 const styles = StyleSheet.create({
+	title: {
+		fontSize: 24,
+	},
+	item: {
+		backgroundColor: "#f9c2ff",
+		padding: 20,
+		marginVertical: 8,
+	},
+	header: {
+		fontSize: 32,
+		backgroundColor: "#fff",
+	},
+
+	subtitle: {
+		borderBottomColor: "#198754",
+		borderBottomWidth: 5,
+		textAlign: "center",
+		padding: 5,
+		justifyContent: "center",
+		alignItems: "center",
+		flexDirection: "row",
+		marginTop: 30,
+	},
 	saveContainer: {
 		flex: 1,
 	},
@@ -255,12 +283,15 @@ const styles = StyleSheet.create({
 	},
 
 	container1: {
-		height: 100,
+		flexDirection: "row",
+		height: 64,
 		marginTop: 30,
 	},
 	container2: {
+		padding: 0,
 		height: 25,
-		marginTop: 0,
+		marginTop: -5,
+		flexDirection: "row",
 	},
 	container3: {
 		height: 25,
@@ -304,6 +335,8 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 	},
+
+	iconTop: { height: 64 },
 
 	image1: {
 		flex: 1,
