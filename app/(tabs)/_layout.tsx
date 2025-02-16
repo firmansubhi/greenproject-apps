@@ -9,6 +9,7 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useSession } from "../ctx";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { allowGroup } from "../../utils";
 
 export default function TabLayout() {
 	const colorScheme = useColorScheme();
@@ -62,8 +63,7 @@ export default function TabLayout() {
 					href: null,
 				}}
 			/>
-
-			{role == "administrator" ? (
+			{allowGroup(["administrator"]) ? (
 				<Tabs.Screen
 					name="users"
 					options={{
@@ -81,15 +81,13 @@ export default function TabLayout() {
 					}}
 				/>
 			)}
-
 			<Tabs.Screen
 				name="user/[id]"
 				options={{
 					href: null,
 				}}
 			/>
-
-			{role == "administrator" ? (
+			{allowGroup(["administrator"]) ? (
 				<Tabs.Screen
 					name="products"
 					options={{
@@ -118,16 +116,28 @@ export default function TabLayout() {
 					href: null,
 				}}
 			/>
-
-			<Tabs.Screen
-				name="newsadmin"
-				options={{
-					title: "News",
-					tabBarIcon: ({ color }) => (
-						<Ionicons size={28} name="newspaper" color={color} />
-					),
-				}}
-			/>
+			{allowGroup(["administrator"]) ? (
+				<Tabs.Screen
+					name="newsadmin"
+					options={{
+						title: "News",
+						tabBarIcon: ({ color }) => (
+							<Ionicons
+								size={28}
+								name="newspaper"
+								color={color}
+							/>
+						),
+					}}
+				/>
+			) : (
+				<Tabs.Screen
+					name="newsadmin"
+					options={{
+						href: null,
+					}}
+				/>
+			)}
 			<Tabs.Screen
 				name="newsadm/[id]"
 				options={{
@@ -135,20 +145,28 @@ export default function TabLayout() {
 				}}
 			/>
 
-			<Tabs.Screen
-				name="myQRCode"
-				options={{
-					title: "QRCode",
-					tabBarIcon: ({ color }) => (
-						<Ionicons
-							size={28}
-							name="qr-code-outline"
-							color={color}
-						/>
-					),
-				}}
-			/>
-
+			{allowGroup(["administrator", "seler"]) ? (
+				<Tabs.Screen
+					name="myQRCode"
+					options={{
+						title: "QRCode",
+						tabBarIcon: ({ color }) => (
+							<Ionicons
+								size={28}
+								name="qr-code-outline"
+								color={color}
+							/>
+						),
+					}}
+				/>
+			) : (
+				<Tabs.Screen
+					name="myQRCode"
+					options={{
+						href: null,
+					}}
+				/>
+			)}
 			<Tabs.Screen
 				name="logout"
 				options={{

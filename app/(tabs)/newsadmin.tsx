@@ -18,6 +18,7 @@ import { baseUrl, showAlert, getToken } from "../../utils";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router, useNavigation, usePathname } from "expo-router";
+import { Image } from "expo-image";
 
 type ItemProps = {
 	id: string;
@@ -25,6 +26,7 @@ type ItemProps = {
 	title: string;
 	intro: string;
 	publishDate: string;
+	imageThumb: string;
 };
 
 export default function NewsadminScreen() {
@@ -44,11 +46,19 @@ export default function NewsadminScreen() {
 			title: "",
 			intro: "",
 			publishDate: "",
+			imageThumb: "",
 		},
 	]);
 
 	const Item = memo(
-		({ id, categoryName, title, intro, publishDate }: ItemProps) => (
+		({
+			id,
+			categoryName,
+			title,
+			intro,
+			publishDate,
+			imageThumb,
+		}: ItemProps) => (
 			<View style={[styles.shadows, styles.listItem]}>
 				<View style={styles.listTop}>
 					<TouchableOpacity
@@ -75,6 +85,12 @@ export default function NewsadminScreen() {
 						<FontAwesome6 name="edit" size={16} color="green" />
 					</Link>
 				</View>
+
+				<Image
+					style={{ flex: 1, marginBottom: 0, height: 220 }}
+					source={{ uri: imageThumb }}
+					contentFit="contain"
+				/>
 				<View
 					style={{
 						flex: 1,
@@ -324,6 +340,7 @@ export default function NewsadminScreen() {
 							title={item.title}
 							intro={item.intro}
 							publishDate={item.publishDate}
+							imageThumb={item.imageThumb}
 						/>
 					)}
 					keyExtractor={(item) => item.id}

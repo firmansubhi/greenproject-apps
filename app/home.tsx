@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
-	Button,
 	View,
 	StyleSheet,
-	TextInput,
 	TouchableOpacity,
 	SafeAreaView,
 	Text,
@@ -170,11 +168,10 @@ export default function homeScreen() {
 						</ThemedText>
 					</View>
 
-					{data.map((news) => {
+					{data.map((news, index) => {
 						return (
-							<View>
+							<View key={news.id}>
 								<ThemedText
-									key={news.id}
 									type="subtitle2"
 									style={styles.subtitle}
 								>
@@ -194,7 +191,6 @@ export default function homeScreen() {
 											}
 										>
 											<View
-												key={d.sid + "-"}
 												style={[
 													styles.container4,
 													styles.shadows,

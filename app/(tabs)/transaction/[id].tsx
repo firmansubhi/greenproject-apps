@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 import {
-	Button,
 	View,
 	StyleSheet,
 	TextInput,
@@ -19,14 +18,12 @@ import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import axios from "axios";
 import {
 	router,
-	Link,
 	useLocalSearchParams,
 	useNavigation,
 	usePathname,
 } from "expo-router";
 import { baseUrl, showAlert, getToken } from "../../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { POST } from "../../../utils/http";
 
 export default function TransactionFormScreen() {
 	const [facing, setFacing] = useState<CameraType>("back");
@@ -181,14 +178,11 @@ export default function TransactionFormScreen() {
 				setLoading(false);
 			})
 			.catch(function (error) {
-				console.log(error);
 				setLoading(false);
 				if (error.response) {
 					showAlert("Failed", error.response.data.message);
 				}
 			});
-
-		setLoading(false);
 	};
 
 	const qrScanned = (result: any) => {

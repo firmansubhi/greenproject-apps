@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { Alert, Platform } from "react-native";
+import { useSession } from "../app/ctx";
 
 export const getToken = async () => {
 	if (Platform.OS === "web") {
@@ -25,4 +26,10 @@ export const showAlert = (title: string, body: string) => {
 
 export const baseUrl = () => {
 	return "https://tempdev2.roomie.id/";
+};
+
+export const allowGroup = (roles: string[]) => {
+	const { session, role } = useSession();
+
+	return roles.includes(role as string);
 };

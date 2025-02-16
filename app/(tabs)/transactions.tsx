@@ -14,7 +14,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import axios from "axios";
-import { baseUrl, showAlert, getToken } from "../../utils";
+import { baseUrl, showAlert, getToken, allowGroup } from "../../utils";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router, useNavigation, usePathname } from "expo-router";
@@ -74,30 +74,35 @@ export default function TransactionsScreen() {
 		}: ItemProps) => (
 			<View style={[styles.shadows, styles.listItem]}>
 				<View style={styles.listTop}>
-					<TouchableOpacity
-						onPress={() => deleteData(id, transID)}
-						style={{
-							width: 50,
-							justifyContent: "flex-end",
-							alignItems: "flex-end",
-						}}
-					>
-						<FontAwesome6
-							name="trash-can"
-							size={16}
-							color="green"
-						/>
-					</TouchableOpacity>
+					{allowGroup(["administrator", "receiver"]) && (
+						<TouchableOpacity
+							onPress={() => deleteData(id, transID)}
+							style={{
+								width: 50,
+								justifyContent: "flex-end",
+								alignItems: "flex-end",
+							}}
+						>
+							<FontAwesome6
+								name="trash-can"
+								size={16}
+								color="green"
+							/>
+						</TouchableOpacity>
+					)}
 
-					<Link
-						href={{
-							pathname: "/transaction/[id]",
-							params: { id: id },
-						}}
-					>
-						<FontAwesome6 name="edit" size={16} color="green" />
-					</Link>
+					{allowGroup(["administrator", "receiver"]) && (
+						<Link
+							href={{
+								pathname: "/transaction/[id]",
+								params: { id: id },
+							}}
+						>
+							<FontAwesome6 name="edit" size={16} color="green" />
+						</Link>
+					)}
 				</View>
+
 				<View
 					style={{
 						flex: 1,
@@ -171,16 +176,19 @@ export default function TransactionsScreen() {
 							<ThemedText>{createdAt}</ThemedText>
 						</View>
 						<View style={styles.listFooterRight}>
-							{status !== "finalized" && (
-								<TouchableOpacity
-									style={styles.button}
-									onPress={() => finalizeData(id, transID)}
-								>
-									<Text style={styles.buttonText}>
-										Finalize
-									</Text>
-								</TouchableOpacity>
-							)}
+							{status !== "finalized" &&
+								allowGroup(["administrator", "buyer"]) && (
+									<TouchableOpacity
+										style={styles.button}
+										onPress={() =>
+											finalizeData(id, transID)
+										}
+									>
+										<Text style={styles.buttonText}>
+											Finalize
+										</Text>
+									</TouchableOpacity>
+								)}
 						</View>
 					</View>
 				</View>
@@ -416,14 +424,18 @@ export default function TransactionsScreen() {
 								paddingLeft: 5,
 							}}
 						>
-							<TouchableOpacity
-								style={styles.button}
-								onPress={() => router.replace("/transaction/0")}
-							>
-								<Text style={styles.buttonText}>
-									Create New Transaction
-								</Text>
-							</TouchableOpacity>
+							{allowGroup(["administrator", "receiver"]) && (
+								<TouchableOpacity
+									style={styles.button}
+									onPress={() =>
+										router.replace("/transaction/0")
+									}
+								>
+									<Text style={styles.buttonText}>
+										Create New Transaction
+									</Text>
+								</TouchableOpacity>
+							)}
 						</View>
 					</View>
 				</View>

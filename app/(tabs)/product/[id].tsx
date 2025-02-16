@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from "react";
 
 import {
-	View,
 	StyleSheet,
 	TextInput,
 	TouchableOpacity,
 	Text,
 	SafeAreaView,
-	TouchableWithoutFeedback,
 	ScrollView,
 } from "react-native";
-import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 
 import axios from "axios";
-import { useRouter, Link, useLocalSearchParams, Redirect } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { baseUrl, showAlert, getToken } from "../../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -104,14 +101,11 @@ export default function ProductFormcreen() {
 				setLoading(false);
 			})
 			.catch(function (error) {
-				console.log(error);
 				setLoading(false);
 				if (error.response) {
 					showAlert("Failed", error.response.data.message);
 				}
 			});
-
-		setLoading(false);
 	};
 
 	return (

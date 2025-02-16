@@ -1,40 +1,29 @@
 import React, { useState, useEffect } from "react";
 
 import {
-	Button,
-	View,
 	StyleSheet,
-	TextInput,
-	TouchableOpacity,
-	Text,
+	BackHandler,
 	SafeAreaView,
 	ScrollView,
 } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Picker } from "@react-native-picker/picker";
-import * as ImagePicker from "expo-image-picker";
 
 import { Image } from "expo-image";
 
 import axios from "axios";
-import {
-	router,
-	Link,
-	useLocalSearchParams,
-	useNavigation,
-	usePathname,
-} from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { baseUrl, showAlert, getToken } from "../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { useSession } from "../ctx";
 
 export default function ReadNewsScreen() {
 	const [title, setTitle] = useState("");
 	const [intro, setIntro] = useState("");
 	const [content, setContent] = useState("");
-	const [publishDate, setPublishDate] = useState(new Date());
+	const [categoryName, setCategoryName] = useState("");
+	const [publishDate, setPublishDate] = useState();
 	const [imagePath, setImagePath] = useState(
 		"https://tempdev2.roomie.id/images/blank-qr.png"
 	);
@@ -43,16 +32,28 @@ export default function ReadNewsScreen() {
 
 	const { id } = useLocalSearchParams();
 
-	const colorScheme = useColorScheme();
-	const themeTextInput =
-		colorScheme === "light" ? styles.inputLight : styles.inputDark;
-	const themeTextSelect =
-		colorScheme === "light" ? styles.selectLight : styles.selectDark;
+	const { session } = useSession();
 
 	useEffect(() => {
 		if (id != "0") {
 			loadData(id);
 		}
+
+		const backAction = () => {
+			if (!session) {
+				router.replace("/home");
+			} else {
+				router.replace("/");
+			}
+			return true;
+		};
+
+		const backHandler = BackHandler.addEventListener(
+			"hardwareBackPress",
+			backAction
+		);
+
+		return () => backHandler.remove();
 	}, []);
 
 	const loadData = async (id: any) => {
@@ -73,7 +74,8 @@ export default function ReadNewsScreen() {
 					setTitle(response.data.data.title);
 					setIntro(response.data.data.intro);
 					setContent(response.data.data.content);
-					setPublishDate(new Date(response.data.data.publishDate));
+					setPublishDate(response.data.data.publishDate);
+					setCategoryName(response.data.data.categoryName);
 				} else {
 					showAlert("Failed", response.data.message);
 				}
@@ -91,25 +93,38 @@ export default function ReadNewsScreen() {
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
+				<Image
+					style={styles.image}
+					source={{ uri: imagePath }}
+					contentFit="contain"
+				/>
 				<ThemedView style={styles.mainContainer}>
-					<ThemedText type="title">{title}</ThemedText>
+					<ThemedText style={{ fontSize: 18, marginBottom: 10 }}>
+						{categoryName}
+					</ThemedText>
 
-					<View
+					<ThemedText type="title" style={{ marginBottom: 10 }}>
+						{title}
+					</ThemedText>
+					<ThemedText
 						style={{
-							alignItems: "center",
-							flex: 1,
+							fontSize: 14,
+							marginBottom: 10,
+							color: "#777",
+							borderBottomColor: "#eee",
+							borderBottomWidth: 1,
 						}}
 					>
-						<View style={styles.imageContainer}>
-							<Image
-								style={styles.image}
-								source={{ uri: imagePath }}
-								contentFit="none"
-								transition={1000}
-							/>
-						</View>
-					</View>
-					<ThemedText>{intro}</ThemedText>
+						{publishDate}
+					</ThemedText>
+					<ThemedText
+						style={{
+							marginBottom: 10,
+							fontWeight: "bold",
+						}}
+					>
+						{intro}
+					</ThemedText>
 					<ThemedText>{content}</ThemedText>
 				</ThemedView>
 			</ScrollView>
@@ -118,6 +133,12 @@ export default function ReadNewsScreen() {
 }
 
 const styles = StyleSheet.create({
+	image: {
+		flex: 1,
+		marginBottom: 0,
+		height: 220,
+	},
+
 	buttonContainer: {
 		flex: 1,
 		flexDirection: "row",
@@ -158,7 +179,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 	mainContainer: {
-		padding: 30,
+		padding: 20,
 		flex: 1,
 		flexDirection: "column",
 	},
@@ -231,11 +252,5 @@ const styles = StyleSheet.create({
 	},
 	buttonText: {
 		color: "white",
-	},
-	image: {
-		flex: 1,
-		flexDirection: "column",
-		width: 2000,
-		height: 215,
 	},
 });

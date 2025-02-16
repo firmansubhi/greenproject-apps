@@ -1,20 +1,25 @@
-import React, { useState, useEffect } from "react";
-
-import { StyleSheet, SafeAreaView } from "react-native";
-import { Image } from "expo-image";
-
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import axios from "axios";
-import { useLocalSearchParams } from "expo-router";
-import { baseUrl, showAlert, getToken } from "../../utils";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { useEffect } from "react";
+import { Alert } from "react-native";
 import { useSession } from "../ctx";
+import { router, useNavigation, usePathname } from "expo-router";
 
 export default function LogoutScreen() {
 	const { signOut } = useSession();
 
+	const navigation = useNavigation();
+	const focused = navigation.isFocused();
+	const path = usePathname();
+
 	useEffect(() => {
-		signOut();
-	}, []);
+		if (path == "/logout" && focused == true) {
+			Alert.alert("Hold on!", "Are you sure you want to go sign out?", [
+				{
+					text: "Cancel",
+					onPress: () => router.replace("/"),
+					style: "cancel",
+				},
+				{ text: "Yes", onPress: () => signOut() },
+			]);
+		}
+	}, [focused]);
 }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 
 import {
-	Button,
 	View,
 	StyleSheet,
 	TextInput,
@@ -22,7 +21,6 @@ import { Image } from "expo-image";
 import axios from "axios";
 import {
 	router,
-	Link,
 	useLocalSearchParams,
 	useNavigation,
 	usePathname,
@@ -31,7 +29,7 @@ import { baseUrl, showAlert, getToken } from "../../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-export default function TransactionFormScreen() {
+export default function NewsFormScreen() {
 	const [newsID, setNewsID] = useState("");
 	const [title, setTitle] = useState("");
 	const [intro, setIntro] = useState("");
@@ -45,9 +43,8 @@ export default function TransactionFormScreen() {
 	const [loading, setLoading] = useState(false);
 	const [categories, setCategories] = useState([]);
 
-	const [base64image, setBase64image] = useState("");
-	//const [base64imageType, setBase64imageType] = useState("");
-	const [base64imageType, setBase64imageType] = useState("");
+	const [selectedImage, setSelectedImage] =
+		useState<ImagePicker.ImagePickerAsset>();
 
 	const [dtmode, setDtMode] = useState("date");
 	const [dtshow, setDtShow] = useState(false);
@@ -81,8 +78,6 @@ export default function TransactionFormScreen() {
 			setNewsID("");
 			setImageThumb("https://tempdev2.roomie.id/images/blank-qr.png");
 			setImageChanged(false);
-			setBase64image("");
-			setBase64imageType("");
 		}
 	}, [focused]);
 
@@ -149,8 +144,6 @@ export default function TransactionFormScreen() {
 					setCategory(response.data.data.category._id);
 
 					setNewsID(response.data.data.newsID);
-
-					//console.log(new Date().toLocaleString());
 				} else {
 					showAlert("Failed", response.data.message);
 				}
@@ -179,20 +172,48 @@ export default function TransactionFormScreen() {
 			//imageThumb
 		}
 
+		if (!selectedImage) return;
+
+		const uri2 =
+			Platform.OS === "android"
+				? selectedImage.uri
+				: selectedImage.uri.replace("file://", "");
+		const filename = selectedImage.uri.split("/").pop();
+		const match = /\.(\w+)$/.exec(filename as string);
+		const ext = match?.[1];
+		const type = match ? `image/${match[1]}` : `image`;
+		const formData = new FormData();
+
+		//console.log(uri2, `image.${ext}`, type);
+		formData.append("image", {
+			uri: uri2,
+			name: `image.${ext}`,
+			type,
+		} as any);
+
+		console.log(publishDate);
+
+		formData.append("_id", id as any);
+		formData.append("newsID", newsID);
+		formData.append("title", title);
+		formData.append("intro", intro);
+		formData.append("content", content);
+		formData.append("publishDate", publishDate.toDateString());
+		formData.append("category", category);
+
 		axios
 			.post(
 				baseUrl() + uri,
-				{
-					_id: id,
-					newsID: newsID,
-					title: title,
-					intro: intro,
-					content: content,
-					publishDate: publishDate,
-					category: category,
-					base64image: base64image,
-					base64imageType: base64imageType,
-				},
+				formData,
+				//{
+				//	_id: id,
+				//	newsID: newsID,
+				//	title: title,
+				//	intro: intro,
+				//	content: content,
+				//	publishDate: publishDate,
+				//	category: category,
+				//},
 				{
 					headers: {
 						//"Content-Type": "application/json",
@@ -202,6 +223,7 @@ export default function TransactionFormScreen() {
 				}
 			)
 			.then(async function (response) {
+				console.log(response);
 				if (response.data.success == true) {
 					router.replace("/newsadmin");
 				} else {
@@ -217,8 +239,6 @@ export default function TransactionFormScreen() {
 					showAlert("Failed", error.response.data.message);
 				}
 			});
-
-		setLoading(false);
 	};
 
 	const onChangePublishDate = (event: any, selectedDate: Date) => {
@@ -244,18 +264,10 @@ export default function TransactionFormScreen() {
 			allowsEditing: false,
 			//aspect: [4, 3],
 			quality: 1,
-			base64: true,
 		});
 
 		if (!result.canceled) {
-			setBase64image(
-				"data:" +
-					result.assets[0].mimeType +
-					";base64," +
-					result.assets[0].base64
-			);
-
-			setBase64imageType(result.assets[0].mimeType);
+			setSelectedImage(result.assets[0]);
 			setImageThumb(result.assets[0].uri);
 			setImageChanged(true);
 		}
@@ -282,7 +294,7 @@ export default function TransactionFormScreen() {
 						/>
 					</View>
 					<TouchableOpacity style={styles.button} onPress={pickImage}>
-						<Text style={styles.buttonText}>...</Text>
+						<Text style={styles.buttonText}>select image</Text>
 					</TouchableOpacity>
 
 					{id != "0" && (

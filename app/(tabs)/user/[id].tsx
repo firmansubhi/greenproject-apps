@@ -7,10 +7,8 @@ import {
 	TouchableOpacity,
 	Text,
 	SafeAreaView,
-	TouchableWithoutFeedback,
 	ScrollView,
 } from "react-native";
-import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -20,7 +18,6 @@ import axios from "axios";
 import { router, Link, useLocalSearchParams } from "expo-router";
 import { baseUrl, showAlert, getToken } from "../../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { POST } from "../../../utils/http";
 
 export default function RegisterScreen() {
 	const [role, setRole] = useState("");
@@ -92,15 +89,6 @@ export default function RegisterScreen() {
 
 	const onPress = async () => {
 		setLoading(true);
-
-		// const resp = await POST("users/edit", {
-		// 	username: username,
-		// 	firstname: firstname,
-		// 	lastname: lastname,
-		// 	email: email,
-		// 	city: city,
-		// });
-
 		let token = await getToken();
 
 		let uri = "users/edit";
@@ -138,14 +126,11 @@ export default function RegisterScreen() {
 				setLoading(false);
 			})
 			.catch(function (error) {
-				console.log(error);
 				setLoading(false);
 				if (error.response) {
 					showAlert("Failed", error.response.data.message);
 				}
 			});
-
-		setLoading(false);
 	};
 
 	return (

@@ -15,7 +15,7 @@ import { ThemedView } from "@/components/ThemedView";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 import axios from "axios";
-import { router, Link } from "expo-router";
+import { router } from "expo-router";
 import { baseUrl, showAlert } from "../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
 

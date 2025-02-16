@@ -6,6 +6,7 @@ import {
 	TouchableOpacity,
 	Text,
 	SafeAreaView,
+	TouchableWithoutFeedback,
 } from "react-native";
 import { Image } from "expo-image";
 
@@ -83,11 +84,15 @@ export default function VerifyScreen() {
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ThemedView style={styles.imageContainer}>
-				<Image
-					style={styles.image}
-					source={require("@/assets/images/hero-carousel-3b.jpg")}
-					contentFit="cover"
-				/>
+				<TouchableWithoutFeedback
+					onPress={() => router.replace("/home")}
+				>
+					<Image
+						style={styles.image}
+						source={require("@/assets/images/hero-carousel-3b.jpg")}
+						contentFit="cover"
+					/>
+				</TouchableWithoutFeedback>
 			</ThemedView>
 
 			<ThemedView style={styles.mainContainer}>

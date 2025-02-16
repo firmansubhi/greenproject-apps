@@ -77,14 +77,6 @@ export default function UsersScreen() {
 			>
 				<FontAwesome6 name="edit" size={16} color="green" />
 			</Link>
-			{/*<TouchableOpacity
-				style={{
-					height: 50,
-					width: 25,
-					justifyContent: "center",
-					alignItems: "center",
-				}}
-			></TouchableOpacity>*/}
 		</View>
 	);
 

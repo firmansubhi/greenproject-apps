@@ -17,7 +17,6 @@ import { useSession } from "./ctx";
 import { router } from "expo-router";
 import { baseUrl, showAlert } from "../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { Link } from "expo-router";
 
 export default function LoginScreen() {
 	const { signIn } = useSession();
