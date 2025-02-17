@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { Alert, Platform } from "react-native";
 import { useSession } from "../app/ctx";
+import { formatCurrency } from "react-native-format-currency";
 
 export const getToken = async () => {
 	if (Platform.OS === "web") {
@@ -32,4 +33,12 @@ export const allowGroup = (roles: string[]) => {
 	const { session, role } = useSession();
 
 	return roles.includes(role as string);
+};
+
+export const currency = (value: number) => {
+	const [_, valueFormattedWithoutSymbol] = formatCurrency({
+		amount: value,
+		code: "IDR",
+	});
+	return valueFormattedWithoutSymbol;
 };

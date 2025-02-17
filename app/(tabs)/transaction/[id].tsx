@@ -65,6 +65,8 @@ export default function TransactionFormScreen() {
 			} else {
 				setCameraActive(true);
 			}
+		} else {
+			setCameraActive(false);
 		}
 
 		if (id != "0") {

@@ -14,7 +14,13 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import axios from "axios";
-import { baseUrl, showAlert, getToken, allowGroup } from "../../utils";
+import {
+	baseUrl,
+	showAlert,
+	getToken,
+	allowGroup,
+	currency,
+} from "../../utils";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router, useNavigation, usePathname } from "expo-router";
@@ -159,7 +165,7 @@ export default function TransactionsScreen() {
 							<ThemedText style={styles.grey}>Price</ThemedText>
 						</View>
 						<View style={styles.subtitleRight}>
-							<ThemedText>{amount}</ThemedText>
+							<ThemedText>{currency(amount)}</ThemedText>
 						</View>
 					</View>
 					<View style={styles.subtitle}>
