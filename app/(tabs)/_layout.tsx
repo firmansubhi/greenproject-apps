@@ -145,7 +145,7 @@ export default function TabLayout() {
 				}}
 			/>
 
-			{allowGroup(["administrator", "seler"]) ? (
+			{allowGroup(["administrator", "seller"]) ? (
 				<Tabs.Screen
 					name="myQRCode"
 					options={{
