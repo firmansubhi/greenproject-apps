@@ -56,7 +56,7 @@ export default function LoginScreen() {
 					let msg = error.response.data.message;
 					showAlert("Failed", msg);
 					if (error.response.data.message == "unverified") {
-						router.replace("/verify/" + error.response.data.email);
+						router.replace(`/verify/${error.response.data.email}`);
 					}
 				}
 			});

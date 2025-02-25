@@ -41,10 +41,7 @@
 		"experiments": {
 			"typedRoutes": true
 		},
-		"androidStatusBar": {
-			"backgroundColor": "#57823b",
-			"translucent": false
-		},
+
 		"extra": {
 			"router": {
 				"origin": false

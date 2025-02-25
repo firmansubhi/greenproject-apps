@@ -7,6 +7,7 @@ import {
 	Text,
 	ScrollView,
 	TouchableHighlight,
+	Dimensions,
 } from "react-native";
 
 import { Image } from "expo-image";
@@ -15,6 +16,38 @@ import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
 import axios from "axios";
 import { baseUrl } from "../utils";
+import { useSharedValue } from "react-native-reanimated";
+import Carousel, {
+	ICarouselInstance,
+	Pagination,
+} from "react-native-reanimated-carousel";
+
+interface newsProps {
+	key: String;
+	id: String;
+	name: String;
+	detail: newsDetailProps[];
+}
+
+interface newsDetailProps {
+	sid: String;
+	imageThumb: String;
+	title: String;
+	intro: String;
+	newsID: String;
+	publishDate: String;
+}
+
+const datas: number[] = [...new Array(3).keys()];
+const colors = ["#ff0000", "#00ff00", "#0000ff"];
+
+export const banners = [
+	require("@/assets/images/banner/1.png"),
+	require("@/assets/images/banner/2.png"),
+	require("@/assets/images/banner/3.png"),
+];
+
+const width = Dimensions.get("window").width;
 
 export default function homeScreen() {
 	const [loading, setLoading] = useState(false);
@@ -40,16 +73,89 @@ export default function homeScreen() {
 			});
 	};
 
+	const renderItem2 = ({ item }: { item: number }) => {
+		return (
+			<View
+				style={{
+					flex: 1,
+					justifyContent: "center",
+				}}
+			>
+				<Image
+					style={styles.imageBanner}
+					source={banners[item]}
+					contentFit="contain"
+				/>
+			</View>
+		);
+	};
+
+	const ref = React.useRef<ICarouselInstance>(null);
+	const progress = useSharedValue<number>(0);
+	const onPressPagination = (index: number) => {
+		ref.current?.scrollTo({
+			/**
+			 * Calculate the difference between the current index and the target index
+			 * to ensure that the carousel scrolls to the nearest index
+			 */
+			count: index - progress.value,
+			animated: true,
+		});
+	};
+
+	const renderItem = ({ item }: { item: number }) => {
+		return (
+			<View
+				style={{
+					flex: 1,
+					justifyContent: "center",
+				}}
+			>
+				<Image
+					style={styles.imageBanner}
+					source={banners[item]}
+					contentFit="contain"
+				/>
+			</View>
+		);
+	};
+
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
-				<ThemedView style={styles.imageContainer}>
+				<ThemedView style={styles.imageLogoContainer}>
 					<Image
-						style={styles.image}
-						source={require("@/assets/images/hero-carousel-3b.jpg")}
+						style={styles.imageLogo}
+						source={require("@/assets/images/icon.png")}
 						contentFit="cover"
 					/>
 				</ThemedView>
+
+				<View style={{ flex: 1 }}>
+					<Carousel
+						ref={ref}
+						width={width}
+						height={width / 2 - 22}
+						data={datas}
+						onProgressChange={progress}
+						renderItem={renderItem}
+						loop={true}
+						autoPlay
+						autoPlayInterval={5000}
+						mode="parallax"
+					/>
+
+					<Pagination.Basic
+						progress={progress}
+						data={data}
+						dotStyle={{
+							backgroundColor: "rgba(0,0,0,0.2)",
+							borderRadius: 50,
+						}}
+						containerStyle={{ gap: 10, marginTop: 0 }}
+						onPress={onPressPagination}
+					/>
+				</View>
 
 				<ThemedView style={styles.mainContainer}>
 					<ThemedText
@@ -168,9 +274,9 @@ export default function homeScreen() {
 						</ThemedText>
 					</View>
 
-					{data.map((news, index) => {
+					{data.map((news: newsProps, index) => {
 						return (
-							<View key={news.id}>
+							<View key={index}>
 								<ThemedText
 									type="subtitle2"
 									style={styles.subtitle}
@@ -178,15 +284,15 @@ export default function homeScreen() {
 									{news.name}
 								</ThemedText>
 
-								{news.detail.map((d) => {
+								{news.detail.map((d, i) => {
 									return (
 										<TouchableHighlight
-											key={d.sid}
+											key={i}
 											activeOpacity={0.6}
 											underlayColor="#DDDDDD"
 											onPress={() =>
 												router.replace(
-													"/read/" + d.newsID
+													`/read/${d.newsID}`
 												)
 											}
 										>
@@ -256,12 +362,23 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 
-	imageContainer: {
+	imageLogoContainer: {
 		flex: 1,
-		flexDirection: "row",
-		maxHeight: 200,
-		height: 200,
+		flexDirection: "column",
+		alignItems: "center",
+		height: 100,
+		marginTop: 10,
+		marginBottom: 0,
 	},
+	imageLogo: {
+		width: 90,
+		height: 90,
+	},
+	imageBanner: {
+		width: "100%",
+		height: "100%",
+	},
+
 	mainContainer: {
 		padding: 20,
 		flex: 1,
@@ -380,11 +497,5 @@ const styles = StyleSheet.create({
 	},
 	buttonText: {
 		color: "white",
-	},
-
-	image: {
-		flex: 1,
-		maxHeight: 200,
-		marginBottom: 20,
 	},
 });
