@@ -21,6 +21,8 @@ import Carousel, {
 	ICarouselInstance,
 	Pagination,
 } from "react-native-reanimated-carousel";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
 
 interface newsProps {
 	key: String;
@@ -38,20 +40,36 @@ interface newsDetailProps {
 	publishDate: String;
 }
 
-const datas: number[] = [...new Array(3).keys()];
-const colors = ["#ff0000", "#00ff00", "#0000ff"];
+type ItemProps = {
+	0: ItemProps2;
+	1: ItemProps2;
+};
 
-export const banners = [
-	require("@/assets/images/banner/1.png"),
-	require("@/assets/images/banner/2.png"),
-	require("@/assets/images/banner/3.png"),
-];
+type ItemProps2 = {
+	newsID: string;
+	imageThumb: string;
+	title: string;
+};
 
 const width = Dimensions.get("window").width;
 
 export default function homeScreen() {
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState([]);
+	const [investments, setInvestments] = useState([]);
+
+	const colorScheme = useColorScheme();
+	const themeCarousel =
+		colorScheme === "light" ? styles.carouselLight : styles.carouselDark;
+
+	const themeBG = colorScheme === "light" ? styles.bgLight : styles.bgDark;
+
+	const bi: number[] = [...new Array(3).keys()];
+	const banners = [
+		require("@/assets/images/banner/1.png"),
+		require("@/assets/images/banner/2.png"),
+		require("@/assets/images/banner/3.png"),
+	];
 
 	useEffect(() => {
 		loadData();
@@ -71,33 +89,25 @@ export default function homeScreen() {
 			.finally(function () {
 				setLoading(false);
 			});
-	};
 
-	const renderItem2 = ({ item }: { item: number }) => {
-		return (
-			<View
-				style={{
-					flex: 1,
-					justifyContent: "center",
-				}}
-			>
-				<Image
-					style={styles.imageBanner}
-					source={banners[item]}
-					contentFit="contain"
-				/>
-			</View>
-		);
+		axios
+			.get(baseUrl() + "newsadmin/group/investment", {})
+			.then(function (response) {
+				if (response.data.success == true) {
+					//console.log(response.data.data);
+					setInvestments(response.data.data);
+				}
+			})
+			.catch(function (error) {})
+			.finally(function () {
+				setLoading(false);
+			});
 	};
 
 	const ref = React.useRef<ICarouselInstance>(null);
 	const progress = useSharedValue<number>(0);
 	const onPressPagination = (index: number) => {
 		ref.current?.scrollTo({
-			/**
-			 * Calculate the difference between the current index and the target index
-			 * to ensure that the carousel scrolls to the nearest index
-			 */
 			count: index - progress.value,
 			animated: true,
 		});
@@ -120,6 +130,40 @@ export default function homeScreen() {
 		);
 	};
 
+	const renderItem2 = ({ item }: { item: ItemProps }) => {
+		return (
+			<View
+				style={{
+					flex: 1,
+					justifyContent: "center",
+					flexDirection: "row",
+					padding: 10,
+				}}
+			>
+				<View style={[styles.imgBanner]}>
+					<Image
+						style={[styles.imageBanner2]}
+						contentFit="contain"
+						source={{
+							uri: item[0].imageThumb,
+						}}
+					/>
+					<ThemedText>{item[0].title}</ThemedText>
+				</View>
+				<View style={[styles.imgBanner]}>
+					<Image
+						style={styles.imageBanner2}
+						contentFit="contain"
+						source={{
+							uri: item[1].imageThumb,
+						}}
+					/>
+					<ThemedText>{item[1].title}</ThemedText>
+				</View>
+			</View>
+		);
+	};
+
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
@@ -131,12 +175,12 @@ export default function homeScreen() {
 					/>
 				</ThemedView>
 
-				<View style={{ flex: 1 }}>
+				<View style={[themeCarousel]}>
 					<Carousel
 						ref={ref}
 						width={width}
 						height={width / 2 - 22}
-						data={datas}
+						data={bi}
 						onProgressChange={progress}
 						renderItem={renderItem}
 						loop={true}
@@ -158,93 +202,111 @@ export default function homeScreen() {
 				</View>
 
 				<ThemedView style={styles.mainContainer}>
-					<ThemedText
-						type="title"
-						style={{
-							textAlign: "center",
-						}}
-					>
-						Green Project
-					</ThemedText>
-					<ThemedText
-						style={{
-							textAlign: "center",
-						}}
-					>
-						Lets save our earth
-					</ThemedText>
-					<View style={[styles.container1]}>
-						<View style={[styles.icon1, styles.iconTop]}>
-							<Image
-								style={[styles.image1, styles.image1b]}
-								source={require("@/assets/images/logo/recycle.png")}
-								contentFit="contain"
-							/>
+					<View style={[styles.containerInner, themeBG]}>
+						<View style={[styles.container1]}>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/recycle.png")}
+									contentFit="contain"
+								/>
+							</View>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/carbon.png")}
+									contentFit="contain"
+								/>
+							</View>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/forestry.png")}
+									contentFit="contain"
+								/>
+							</View>
 						</View>
-						<View style={[styles.icon1, styles.iconTop]}>
-							<Image
-								style={[styles.image1, styles.image1b]}
-								source={require("@/assets/images/logo/co2a.png")}
-								contentFit="contain"
-							/>
-						</View>
-						<View style={[styles.icon1, styles.iconTop]}>
-							<Image
-								style={[styles.image1, styles.image1b]}
-								source={require("@/assets/images/logo/forest2.png")}
-								contentFit="contain"
-							/>
-						</View>
-					</View>
-					<View style={[styles.container2]}>
-						<View style={[styles.icon1]}>
-							<ThemedText>Recycle</ThemedText>
-						</View>
-						<View style={[styles.icon1]}>
-							<ThemedText>Carbon Credit</ThemedText>
-						</View>
-						<View style={[styles.icon1]}>
-							<ThemedText>Forestry</ThemedText>
-						</View>
-					</View>
-					<View
-						style={[
-							styles.container3,
-							{
-								flexDirection: "row",
-							},
-						]}
-					>
-						<View style={[styles.icon1]}>
-							<Image
-								style={styles.image1}
-								source={require("@/assets/images/logo/mandiri.png")}
-								contentFit="cover"
-							/>
-						</View>
-						<View style={[styles.icon1]}>
-							<Image
-								style={styles.image1}
-								source={require("@/assets/images/logo/ovo2.png")}
-								contentFit="cover"
-							/>
-						</View>
-						<View style={[styles.icon1]}>
-							<Image
-								style={styles.image1}
-								source={require("@/assets/images/logo/dana2.png")}
-								contentFit="cover"
-							/>
-						</View>
-						<View style={[styles.icon1]}>
-							<Image
-								style={styles.image1}
-								source={require("@/assets/images/logo/gopay2.png")}
-								contentFit="cover"
-							/>
+						<View style={[styles.container2]}>
+							<View style={[styles.icon1]}>
+								<ThemedText style={[styles.textBold]}>
+									Recycle
+								</ThemedText>
+							</View>
+							<View style={[styles.icon1]}>
+								<ThemedText style={[styles.textBold]}>
+									Carbon
+								</ThemedText>
+							</View>
+							<View style={[styles.icon1]}>
+								<ThemedText style={[styles.textBold]}>
+									Forestry
+								</ThemedText>
+							</View>
 						</View>
 					</View>
 
+					<View style={[styles.containerInner, themeBG]}>
+						<View style={[styles.container1, { marginBottom: 20 }]}>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/b-mandiri.png")}
+									contentFit="contain"
+								/>
+							</View>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/b-gopay.png")}
+									contentFit="contain"
+								/>
+							</View>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/b-dana.png")}
+									contentFit="contain"
+								/>
+							</View>
+						</View>
+						<View style={[styles.container1]}>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/b-bca.png")}
+									contentFit="contain"
+								/>
+							</View>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/b-spay.png")}
+									contentFit="contain"
+								/>
+							</View>
+							<View style={[styles.icon1, styles.iconTop]}>
+								<Image
+									style={[styles.image1, styles.image1b]}
+									source={require("@/assets/images/button/b-ovo.png")}
+									contentFit="contain"
+								/>
+							</View>
+						</View>
+					</View>
+				</ThemedView>
+
+				<View style={[themeCarousel]}>
+					<Carousel
+						width={width}
+						height={width / 2 + 50}
+						data={investments}
+						renderItem={renderItem2}
+						loop={true}
+						autoPlay
+						autoPlayInterval={5000}
+					/>
+				</View>
+				<ThemedView style={styles.mainContainer}>
 					<View
 						style={{
 							borderBottomColor: "#efefef",
@@ -366,24 +428,57 @@ const styles = StyleSheet.create({
 		flex: 1,
 		flexDirection: "column",
 		alignItems: "center",
-		height: 100,
-		marginTop: 10,
+		height: 80,
+		paddingTop: 10,
 		marginBottom: 0,
 	},
 	imageLogo: {
-		width: 90,
-		height: 90,
+		width: 64,
+		height: 64,
 	},
 	imageBanner: {
 		width: "100%",
 		height: "100%",
 	},
 
+	imgBanner: {
+		flex: 1,
+		flexDirection: "column",
+		alignItems: "center",
+		//paddingLeft: 10,
+		//paddingRight: 10,
+	},
+	imageBanner2: {
+		width: "100%",
+		height: 160,
+	},
+
+	carouselLight: {
+		backgroundColor: Colors.light.background,
+	},
+	carouselDark: { backgroundColor: Colors.dark.background },
+
+	bgLight: {
+		backgroundColor: Colors.light.background2,
+	},
+	bgDark: { backgroundColor: Colors.dark.background2 },
+
+	textBold: {
+		fontWeight: "bold",
+	},
+
 	mainContainer: {
 		padding: 20,
 		flex: 1,
 		flexDirection: "column",
-		paddingTop: 10,
+		paddingBottom: 0,
+	},
+
+	containerInner: {
+		borderRadius: 20,
+		overflow: "hidden",
+		padding: 20,
+		marginBottom: 30,
 	},
 
 	container: {
@@ -397,15 +492,16 @@ const styles = StyleSheet.create({
 
 	container1: {
 		flexDirection: "row",
-		height: 64,
-		marginTop: 30,
+		//height: 64,
+		//marginTop: 30,
 	},
 	container2: {
 		padding: 0,
 		height: 25,
-		marginTop: -5,
+		marginTop: 0,
 		flexDirection: "row",
 	},
+
 	container3: {
 		height: 25,
 		marginTop: 20,
@@ -449,7 +545,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 
-	iconTop: { height: 64 },
+	iconTop: { height: 70 },
 
 	image1: {
 		flex: 1,
