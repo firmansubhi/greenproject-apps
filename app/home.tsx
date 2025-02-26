@@ -49,6 +49,7 @@ type ItemProps2 = {
 	newsID: string;
 	imageThumb: string;
 	title: string;
+	publishDate: string;
 };
 
 const width = Dimensions.get("window").width;
@@ -57,19 +58,17 @@ export default function homeScreen() {
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState([]);
 	const [investments, setInvestments] = useState([]);
+	const [communities, setCommunities] = useState([]);
+	const [blogs, setBlogs] = useState([]);
+	const [banners, setBanners] = useState([]);
 
 	const colorScheme = useColorScheme();
 	const themeCarousel =
 		colorScheme === "light" ? styles.carouselLight : styles.carouselDark;
 
 	const themeBG = colorScheme === "light" ? styles.bgLight : styles.bgDark;
-
-	const bi: number[] = [...new Array(3).keys()];
-	const banners = [
-		require("@/assets/images/banner/1.png"),
-		require("@/assets/images/banner/2.png"),
-		require("@/assets/images/banner/3.png"),
-	];
+	const themeSubtitle =
+		colorScheme === "light" ? styles.subtitleLight : styles.subtitleDark;
 
 	useEffect(() => {
 		loadData();
@@ -79,10 +78,10 @@ export default function homeScreen() {
 		setLoading(true);
 
 		axios
-			.get(baseUrl() + "newsadmin/group/all", {})
+			.get(baseUrl() + "newsadmin/banner", {})
 			.then(function (response) {
 				if (response.data.success == true) {
-					setData(response.data.data);
+					setBanners(response.data.data);
 				}
 			})
 			.catch(function (error) {})
@@ -91,11 +90,34 @@ export default function homeScreen() {
 			});
 
 		axios
-			.get(baseUrl() + "newsadmin/group/investment", {})
+			.get(baseUrl() + "newsadmin/category/investment", {})
 			.then(function (response) {
 				if (response.data.success == true) {
-					//console.log(response.data.data);
 					setInvestments(response.data.data);
+				}
+			})
+			.catch(function (error) {})
+			.finally(function () {
+				setLoading(false);
+			});
+
+		axios
+			.get(baseUrl() + "newsadmin/category/communities", {})
+			.then(function (response) {
+				if (response.data.success == true) {
+					setCommunities(response.data.data);
+				}
+			})
+			.catch(function (error) {})
+			.finally(function () {
+				setLoading(false);
+			});
+
+		axios
+			.get(baseUrl() + "newsadmin/category/blog", {})
+			.then(function (response) {
+				if (response.data.success == true) {
+					setBlogs(response.data.data);
 				}
 			})
 			.catch(function (error) {})
@@ -113,7 +135,7 @@ export default function homeScreen() {
 		});
 	};
 
-	const renderItem = ({ item }: { item: number }) => {
+	const renderItem = ({ item }: { item: string }) => {
 		return (
 			<View
 				style={{
@@ -123,7 +145,7 @@ export default function homeScreen() {
 			>
 				<Image
 					style={styles.imageBanner}
-					source={banners[item]}
+					source={item}
 					contentFit="contain"
 				/>
 			</View>
@@ -164,6 +186,46 @@ export default function homeScreen() {
 		);
 	};
 
+	const renderItem3 = ({ item }: { item: ItemProps }) => {
+		return (
+			<View
+				style={{
+					flex: 1,
+					justifyContent: "center",
+					flexDirection: "row",
+					padding: 10,
+				}}
+			>
+				<View style={[styles.imgBanner]}>
+					<Image
+						style={[styles.imageBanner2]}
+						contentFit="contain"
+						source={{
+							uri: item[0].imageThumb,
+						}}
+					/>
+					<ThemedText>{item[0].title}</ThemedText>
+					<ThemedText style={[styles.textGrey]}>
+						{item[0].publishDate}
+					</ThemedText>
+				</View>
+				<View style={[styles.imgBanner]}>
+					<Image
+						style={styles.imageBanner2}
+						contentFit="contain"
+						source={{
+							uri: item[1].imageThumb,
+						}}
+					/>
+					<ThemedText>{item[1].title}</ThemedText>
+					<ThemedText style={[styles.textGrey]}>
+						{item[1].publishDate}
+					</ThemedText>
+				</View>
+			</View>
+		);
+	};
+
 	return (
 		<SafeAreaView style={styles.saveContainer}>
 			<ScrollView>
@@ -180,7 +242,7 @@ export default function homeScreen() {
 						ref={ref}
 						width={width}
 						height={width / 2 - 22}
-						data={bi}
+						data={banners}
 						onProgressChange={progress}
 						renderItem={renderItem}
 						loop={true}
@@ -191,7 +253,7 @@ export default function homeScreen() {
 
 					<Pagination.Basic
 						progress={progress}
-						data={data}
+						data={banners}
 						dotStyle={{
 							backgroundColor: "rgba(0,0,0,0.2)",
 							borderRadius: 50,
@@ -295,26 +357,7 @@ export default function homeScreen() {
 					</View>
 				</ThemedView>
 
-				<View style={[themeCarousel]}>
-					<Carousel
-						width={width}
-						height={width / 2 + 50}
-						data={investments}
-						renderItem={renderItem2}
-						loop={true}
-						autoPlay
-						autoPlayInterval={5000}
-					/>
-				</View>
 				<ThemedView style={styles.mainContainer}>
-					<View
-						style={{
-							borderBottomColor: "#efefef",
-							borderBottomWidth: 1,
-							height: 25,
-							marginBottom: 40,
-						}}
-					></View>
 					<View
 						style={{
 							flex: 1,
@@ -335,90 +378,60 @@ export default function homeScreen() {
 							Don't have account? Join here
 						</ThemedText>
 					</View>
-
-					{data.map((news: newsProps, index) => {
-						return (
-							<View key={index}>
-								<ThemedText
-									type="subtitle2"
-									style={styles.subtitle}
-								>
-									{news.name}
-								</ThemedText>
-
-								{news.detail.map((d, i) => {
-									return (
-										<TouchableHighlight
-											key={i}
-											activeOpacity={0.6}
-											underlayColor="#DDDDDD"
-											onPress={() =>
-												router.replace(
-													`/read/${d.newsID}`
-												)
-											}
-										>
-											<View
-												style={[
-													styles.container4,
-													styles.shadows,
-												]}
-											>
-												<Image
-													style={styles.image2}
-													contentFit="cover"
-													source={{
-														uri: d.imageThumb,
-													}}
-												/>
-												<ThemedText
-													type="subtitle"
-													style={styles.cardText}
-												>
-													{d.title}
-												</ThemedText>
-
-												<ThemedText
-													style={styles.cardText}
-												>
-													{d.intro}
-												</ThemedText>
-											</View>
-										</TouchableHighlight>
-									);
-								})}
-							</View>
-						);
-					})}
 				</ThemedView>
+
+				<ThemedView style={styles.mainContainer}>
+					<ThemedText type="subtitle" style={[themeSubtitle]}>
+						Investment
+					</ThemedText>
+				</ThemedView>
+
+				<View style={[themeCarousel]}>
+					<Carousel
+						width={width}
+						height={width / 2 + 20}
+						data={investments}
+						renderItem={renderItem2}
+						loop={true}
+						autoPlay
+						autoPlayInterval={5000}
+					/>
+				</View>
+
+				<ThemedView style={styles.mainContainer}>
+					<ThemedText type="subtitle" style={[themeSubtitle]}>
+						Communities
+					</ThemedText>
+				</ThemedView>
+
+				<View style={[themeCarousel]}>
+					<Carousel
+						width={width}
+						height={width / 2 + 50}
+						data={communities}
+						renderItem={renderItem3}
+						loop={true}
+						autoPlay
+						autoPlayInterval={5000}
+					/>
+				</View>
 			</ScrollView>
 		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
-	title: {
-		fontSize: 24,
-	},
-	item: {
-		backgroundColor: "#f9c2ff",
-		padding: 20,
-		marginVertical: 8,
-	},
-	header: {
-		fontSize: 32,
-		backgroundColor: "#fff",
+	textGrey: {
+		color: "#aaa",
+		fontSize: 14,
 	},
 
-	subtitle: {
-		borderBottomColor: "#198754",
-		borderBottomWidth: 5,
-		textAlign: "center",
-		padding: 5,
-		justifyContent: "center",
-		alignItems: "center",
-		flexDirection: "row",
-		marginTop: 30,
+	subtitleLight: {
+		color: Colors.light.text2,
+	},
+
+	subtitleDark: {
+		color: Colors.dark.text2,
 	},
 	saveContainer: {
 		flex: 1,
@@ -445,9 +458,8 @@ const styles = StyleSheet.create({
 		flex: 1,
 		flexDirection: "column",
 		alignItems: "center",
-		//paddingLeft: 10,
-		//paddingRight: 10,
 	},
+
 	imageBanner2: {
 		width: "100%",
 		height: 160,
@@ -481,15 +493,6 @@ const styles = StyleSheet.create({
 		marginBottom: 30,
 	},
 
-	container: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "center",
-		padding: 0,
-		borderBottomWidth: 1,
-		borderColor: "#ccc",
-	},
-
 	container1: {
 		flexDirection: "row",
 		//height: 64,
@@ -500,43 +503,6 @@ const styles = StyleSheet.create({
 		height: 25,
 		marginTop: 0,
 		flexDirection: "row",
-	},
-
-	container3: {
-		height: 25,
-		marginTop: 20,
-		marginBottom: 20,
-	},
-
-	container4: {
-		margin: 0,
-		padding: 15,
-		paddingTop: 20,
-
-		marginTop: 10,
-		marginBottom: 20,
-		flexDirection: "column",
-		flex: 1,
-	},
-
-	shadows: {
-		elevation: 5,
-		shadowColor: "#ccc",
-		borderBottomColor: "#ccc",
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 0.8,
-		shadowRadius: 2,
-	},
-	cardText: {
-		textAlign: "center",
-	},
-
-	image2: {
-		height: 200,
-		flex: 1,
-
-		width: "100%",
-		maxHeight: 200,
 	},
 
 	icon1: {
@@ -554,37 +520,13 @@ const styles = StyleSheet.create({
 
 	image1b: {},
 
-	input: {
-		height: 40,
-		margin: 5,
-		padding: 10,
-		borderBottomWidth: 1,
-		borderColor: "#ccc",
-	},
-
-	inputLight: {
-		color: "#000",
-	},
-	inputDark: {
-		color: "#fff",
-	},
-
-	inputPass: {
-		height: 40,
-		margin: 5,
-		padding: 10,
-		flex: 1,
-	},
-	icon: {
-		marginLeft: 10,
-	},
 	button: {
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",

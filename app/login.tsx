@@ -7,17 +7,20 @@ import {
 	SafeAreaView,
 	Text,
 	TouchableWithoutFeedback,
+	Dimensions,
 } from "react-native";
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { ThemedView2 } from "@/components/ThemedView2";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import axios from "axios";
 import { useSession } from "./ctx";
 import { router } from "expo-router";
 import { baseUrl, showAlert } from "../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { Colors } from "@/constants/Colors";
 
+const width = Dimensions.get("window").width;
 export default function LoginScreen() {
 	const { signIn } = useSession();
 	const [username, onChangeUsername] = useState("");
@@ -64,19 +67,88 @@ export default function LoginScreen() {
 
 	return (
 		<SafeAreaView style={styles.saveContainer}>
-			<ThemedView style={styles.imageContainer}>
-				<TouchableWithoutFeedback
-					onPress={() => router.replace("/home")}
-				>
+			<ThemedView2 style={styles.imageContainer}>
+				<ThemedView2 style={styles.imageLogoContainer}>
 					<Image
-						style={styles.image}
-						source={require("@/assets/images/hero-carousel-3b.jpg")}
+						style={styles.imageLogo}
+						source={require("@/assets/images/icon.png")}
 						contentFit="cover"
 					/>
-				</TouchableWithoutFeedback>
-			</ThemedView>
+				</ThemedView2>
+			</ThemedView2>
 
-			<ThemedView style={styles.mainContainer}>
+			<ThemedView2
+				style={[
+					{
+						flex: 1,
+						justifyContent: "flex-start",
+						padding: 20,
+						paddingTop: 80,
+
+						flexDirection: "column",
+						paddingBottom: 0,
+					},
+				]}
+			></ThemedView2>
+
+			<ThemedView2 style={[{ justifyContent: "flex-end" }]}>
+				<View style={{ padding: 20 }}>
+					<ThemedText>Username</ThemedText>
+					<TextInput
+						style={[styles.input, themeTextInput]}
+						onChangeText={onChangeUsername}
+						value={username}
+						placeholder="User Name"
+						placeholderTextColor="#777"
+					/>
+
+					<View style={styles.container}>
+						<TextInput
+							style={[styles.inputPass, themeTextInput]}
+							onChangeText={onChangePassword}
+							value={password}
+							placeholder="Passwords"
+							placeholderTextColor="#777"
+							secureTextEntry={!showPassword}
+						/>
+
+						<Ionicons
+							size={24}
+							name={showPassword ? "eye-off" : "eye"}
+							color="#aaa"
+							style={styles.icon}
+							onPress={toggleShowPassword}
+						/>
+					</View>
+					<TouchableOpacity
+						disabled={loading}
+						style={styles.button}
+						onPress={onPress}
+					>
+						<Text style={styles.buttonText}>Login</Text>
+					</TouchableOpacity>
+
+					<ThemedText
+						onPress={() => router.replace("/register")}
+						type="link"
+					>
+						Don't have account? Join here
+					</ThemedText>
+				</View>
+
+				<Image
+					style={[{ width: width, height: width * (361 / 400) }]}
+					source={require("@/assets/images/hello.svg")}
+					contentFit="cover"
+				/>
+			</ThemedView2>
+
+			{/* <ThemedView2 style={styles.mainContainer}>
+				<ThemedText type="title">Login</ThemedText>
+				<ThemedText type="title">Login</ThemedText>
+				<ThemedText type="title">Login</ThemedText>
+				<ThemedText type="title">Login</ThemedText>
+				<ThemedText type="title">Login</ThemedText>
 				<ThemedText type="title">Login</ThemedText>
 
 				<TextInput
@@ -119,23 +191,36 @@ export default function LoginScreen() {
 				>
 					Don't have account? Join here
 				</ThemedText>
-			</ThemedView>
+			</ThemedView2> */}
 		</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
+	imageLogoContainer: {
+		flex: 1,
+		flexDirection: "column",
+		alignItems: "center",
+		height: 80,
+		paddingTop: 10,
+		marginBottom: 0,
+		maxHeight: 80,
+	},
+	imageLogo: {
+		width: 64,
+		height: 64,
+	},
+
 	saveContainer: {
 		flex: 1,
+		backgroundColor: "green",
 	},
 
 	imageContainer: {
-		flex: 1,
-		flexDirection: "row",
-		maxHeight: 200,
-		height: 200,
+		height: 80,
 	},
 	mainContainer: {
+		backgroundColor: "red",
 		padding: 30,
 		flex: 1,
 		flexDirection: "column",
@@ -159,10 +244,10 @@ const styles = StyleSheet.create({
 	},
 
 	inputLight: {
-		color: "#000",
+		color: Colors.light.text2,
 	},
 	inputDark: {
-		color: "#fff",
+		color: Colors.dark.text2,
 	},
 
 	inputPass: {
