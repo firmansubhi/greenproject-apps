@@ -6,14 +6,15 @@ import {
 	SafeAreaView,
 	Text,
 	ScrollView,
-	TouchableHighlight,
 	Dimensions,
+	Pressable,
 } from "react-native";
 
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
+
 import axios from "axios";
 import { baseUrl } from "../utils";
 import { useSharedValue } from "react-native-reanimated";
@@ -23,22 +24,7 @@ import Carousel, {
 } from "react-native-reanimated-carousel";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
-
-interface newsProps {
-	key: String;
-	id: String;
-	name: String;
-	detail: newsDetailProps[];
-}
-
-interface newsDetailProps {
-	sid: String;
-	imageThumb: String;
-	title: String;
-	intro: String;
-	newsID: String;
-	publishDate: String;
-}
+import { useSession } from "./ctx";
 
 type ItemProps = {
 	0: ItemProps2;
@@ -55,6 +41,10 @@ type ItemProps2 = {
 const width = Dimensions.get("window").width;
 
 export default function homeScreen() {
+	const { session } = useSession();
+	if (session) {
+		return <Redirect href="/" />;
+	}
 	const [loading, setLoading] = useState(false);
 	const [data, setData] = useState([]);
 	const [investments, setInvestments] = useState([]);
@@ -163,24 +153,41 @@ export default function homeScreen() {
 				}}
 			>
 				<View style={[styles.imgBanner]}>
-					<Image
-						style={[styles.imageBanner2]}
-						contentFit="contain"
-						source={{
-							uri: item[0].imageThumb,
-						}}
-					/>
-					<ThemedText>{item[0].title}</ThemedText>
+					<Pressable
+						onPress={() =>
+							router.replace(`/read/${item[0].newsID}`)
+						}
+					>
+						<Image
+							style={[styles.imageBanner2]}
+							contentFit="contain"
+							source={{
+								uri: item[0].imageThumb,
+							}}
+						/>
+						<ThemedText style={{ textAlign: "center" }}>
+							{item[0].title}
+						</ThemedText>
+					</Pressable>
 				</View>
+
 				<View style={[styles.imgBanner]}>
-					<Image
-						style={styles.imageBanner2}
-						contentFit="contain"
-						source={{
-							uri: item[1].imageThumb,
-						}}
-					/>
-					<ThemedText>{item[1].title}</ThemedText>
+					<Pressable
+						onPress={() =>
+							router.replace(`/read/${item[1].newsID}`)
+						}
+					>
+						<Image
+							style={styles.imageBanner2}
+							contentFit="contain"
+							source={{
+								uri: item[1].imageThumb,
+							}}
+						/>
+						<ThemedText style={{ textAlign: "center" }}>
+							{item[1].title}
+						</ThemedText>
+					</Pressable>
 				</View>
 			</View>
 		);
@@ -197,30 +204,42 @@ export default function homeScreen() {
 				}}
 			>
 				<View style={[styles.imgBanner]}>
-					<Image
-						style={[styles.imageBanner2]}
-						contentFit="contain"
-						source={{
-							uri: item[0].imageThumb,
-						}}
-					/>
-					<ThemedText>{item[0].title}</ThemedText>
-					<ThemedText style={[styles.textGrey]}>
-						{item[0].publishDate}
-					</ThemedText>
+					<Pressable
+						onPress={() =>
+							router.replace(`/read/${item[0].newsID}`)
+						}
+					>
+						<Image
+							style={[styles.imageBanner2]}
+							contentFit="contain"
+							source={{
+								uri: item[0].imageThumb,
+							}}
+						/>
+						<ThemedText>{item[0].title}</ThemedText>
+						<ThemedText style={[styles.textGrey]}>
+							{item[0].publishDate}
+						</ThemedText>
+					</Pressable>
 				</View>
 				<View style={[styles.imgBanner]}>
-					<Image
-						style={styles.imageBanner2}
-						contentFit="contain"
-						source={{
-							uri: item[1].imageThumb,
-						}}
-					/>
-					<ThemedText>{item[1].title}</ThemedText>
-					<ThemedText style={[styles.textGrey]}>
-						{item[1].publishDate}
-					</ThemedText>
+					<Pressable
+						onPress={() =>
+							router.replace(`/read/${item[1].newsID}`)
+						}
+					>
+						<Image
+							style={styles.imageBanner2}
+							contentFit="contain"
+							source={{
+								uri: item[1].imageThumb,
+							}}
+						/>
+						<ThemedText>{item[1].title}</ThemedText>
+						<ThemedText style={[styles.textGrey]}>
+							{item[1].publishDate}
+						</ThemedText>
+					</Pressable>
 				</View>
 			</View>
 		);
@@ -232,8 +251,8 @@ export default function homeScreen() {
 				<ThemedView style={styles.imageLogoContainer}>
 					<Image
 						style={styles.imageLogo}
-						source={require("@/assets/images/icon.png")}
-						contentFit="cover"
+						source={require("@/assets/images/logo.svg")}
+						contentFit="contain"
 					/>
 				</ThemedView>
 
@@ -269,21 +288,21 @@ export default function homeScreen() {
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/recycle.png")}
+									source={require("@/assets/images/button/recycle.svg")}
 									contentFit="contain"
 								/>
 							</View>
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/carbon.png")}
+									source={require("@/assets/images/button/carbon.svg")}
 									contentFit="contain"
 								/>
 							</View>
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/forestry.png")}
+									source={require("@/assets/images/button/forestry.svg")}
 									contentFit="contain"
 								/>
 							</View>
@@ -312,21 +331,21 @@ export default function homeScreen() {
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/b-mandiri.png")}
+									source={require("@/assets/images/button/b-mandiri.svg")}
 									contentFit="contain"
 								/>
 							</View>
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/b-gopay.png")}
+									source={require("@/assets/images/button/b-gopay.svg")}
 									contentFit="contain"
 								/>
 							</View>
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/b-dana.png")}
+									source={require("@/assets/images/button/b-dana.svg")}
 									contentFit="contain"
 								/>
 							</View>
@@ -335,21 +354,21 @@ export default function homeScreen() {
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/b-bca.png")}
+									source={require("@/assets/images/button/b-bca.svg")}
 									contentFit="contain"
 								/>
 							</View>
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/b-spay.png")}
+									source={require("@/assets/images/button/b-spay.svg")}
 									contentFit="contain"
 								/>
 							</View>
 							<View style={[styles.icon1, styles.iconTop]}>
 								<Image
 									style={[styles.image1, styles.image1b]}
-									source={require("@/assets/images/button/b-ovo.png")}
+									source={require("@/assets/images/button/b-ovo.svg")}
 									contentFit="contain"
 								/>
 							</View>
@@ -374,6 +393,7 @@ export default function homeScreen() {
 						<ThemedText
 							onPress={() => router.replace("/register")}
 							type="link"
+							style={{ textAlign: "center" }}
 						>
 							Don't have account? Join here
 						</ThemedText>
@@ -446,8 +466,8 @@ const styles = StyleSheet.create({
 		marginBottom: 0,
 	},
 	imageLogo: {
-		width: 64,
-		height: 64,
+		width: 80,
+		height: 80 * (144 / 165),
 	},
 	imageBanner: {
 		width: "100%",
@@ -457,7 +477,6 @@ const styles = StyleSheet.create({
 	imgBanner: {
 		flex: 1,
 		flexDirection: "column",
-		alignItems: "center",
 	},
 
 	imageBanner2: {
@@ -521,7 +540,7 @@ const styles = StyleSheet.create({
 	image1b: {},
 
 	button: {
-		padding: 10,
+		padding: 14,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
@@ -531,7 +550,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",

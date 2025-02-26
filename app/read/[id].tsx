@@ -5,10 +5,11 @@ import {
 	BackHandler,
 	SafeAreaView,
 	ScrollView,
+	Dimensions,
 } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { ThemedView2 } from "@/components/ThemedView2";
 
 import { Image } from "expo-image";
 
@@ -18,6 +19,7 @@ import { baseUrl, showAlert, getToken } from "../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useSession } from "../ctx";
 
+const width = Dimensions.get("window").width;
 export default function ReadNewsScreen() {
 	const [title, setTitle] = useState("");
 	const [intro, setIntro] = useState("");
@@ -98,7 +100,7 @@ export default function ReadNewsScreen() {
 					source={{ uri: imagePath }}
 					contentFit="contain"
 				/>
-				<ThemedView style={styles.mainContainer}>
+				<ThemedView2 style={styles.mainContainer}>
 					<ThemedText style={{ fontSize: 18, marginBottom: 10 }}>
 						{categoryName}
 					</ThemedText>
@@ -126,7 +128,18 @@ export default function ReadNewsScreen() {
 						{intro}
 					</ThemedText>
 					<ThemedText>{content}</ThemedText>
-				</ThemedView>
+				</ThemedView2>
+				<Image
+					style={[
+						{
+							marginTop: 0,
+							width: width,
+							height: width * (147 / 390),
+						},
+					]}
+					source={require("@/assets/images/hello2.svg")}
+					contentFit="cover"
+				/>
 			</ScrollView>
 		</SafeAreaView>
 	);
@@ -136,7 +149,8 @@ const styles = StyleSheet.create({
 	image: {
 		flex: 1,
 		marginBottom: 0,
-		height: 220,
+		width: width,
+		height: width * (870 / 1024),
 	},
 
 	buttonContainer: {

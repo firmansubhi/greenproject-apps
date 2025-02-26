@@ -6,17 +6,18 @@ import {
 	TouchableOpacity,
 	Text,
 	SafeAreaView,
-	TouchableWithoutFeedback,
+	ScrollView,
+	Dimensions,
 } from "react-native";
-import { Image } from "expo-image";
 
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { ThemedView2 } from "@/components/ThemedView2";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { baseUrl, showAlert } from "../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
+const height = Dimensions.get("window").height;
 export default function VerifyScreen() {
 	const [mailkey, setMailkey] = useState("");
 	const [message, setMessage] = useState("Please wait... sending email");
@@ -33,6 +34,7 @@ export default function VerifyScreen() {
 
 	const sendCode = () => {
 		setLoading(true);
+		setMessage("Please wait... sending email");
 		axios
 			.post(baseUrl() + "auth/send-verification", {
 				email: local.email,
@@ -83,45 +85,58 @@ export default function VerifyScreen() {
 
 	return (
 		<SafeAreaView style={styles.saveContainer}>
-			<ThemedView style={styles.imageContainer}>
-				<TouchableWithoutFeedback
-					onPress={() => router.replace("/home")}
-				>
-					<Image
-						style={styles.image}
-						source={require("@/assets/images/hero-carousel-3b.jpg")}
-						contentFit="cover"
-					/>
-				</TouchableWithoutFeedback>
-			</ThemedView>
-
-			<ThemedView style={styles.mainContainer}>
-				<ThemedText type="title">Verification</ThemedText>
-
-				<ThemedText>{message}</ThemedText>
-
-				<TextInput
-					style={[styles.input, themeTextInput]}
-					onChangeText={setMailkey}
-					value={mailkey}
-					placeholder="Your code"
-					placeholderTextColor="#777"
-				/>
-
-				<TouchableOpacity
-					disabled={loading}
-					style={styles.button}
-					onPress={onPress}
-				>
-					<Text style={styles.buttonText}>Verify Code</Text>
-				</TouchableOpacity>
-
-				{!loading && (
-					<ThemedText onPress={() => sendCode()} type="link">
-						Resend Code
+			<ScrollView>
+				<ThemedView2 style={styles.mainContainer}>
+					<ThemedText
+						type="title"
+						style={{
+							fontSize: 28,
+							textAlign: "center",
+							paddingTop: 50,
+							paddingBottom: 20,
+						}}
+					>
+						Enter authentication code
 					</ThemedText>
-				)}
-			</ThemedView>
+					<ThemedText
+						style={{ textAlign: "center", paddingBottom: 50 }}
+					>
+						{message}
+					</ThemedText>
+
+					<TextInput
+						style={[styles.input, themeTextInput]}
+						onChangeText={setMailkey}
+						value={mailkey}
+						placeholder="Type 6 digit code here"
+						placeholderTextColor="#777"
+						keyboardType="numeric"
+						maxLength={6}
+					/>
+
+					<TouchableOpacity
+						disabled={loading}
+						style={[styles.button, { marginTop: 50 }]}
+						onPress={onPress}
+					>
+						<Text style={styles.buttonText}>Continue</Text>
+					</TouchableOpacity>
+
+					{!loading && (
+						<ThemedText
+							style={{
+								textAlign: "center",
+								paddingTop: 10,
+								fontWeight: "bold",
+							}}
+							onPress={() => sendCode()}
+							type="link"
+						>
+							Resend Code
+						</ThemedText>
+					)}
+				</ThemedView2>
+			</ScrollView>
 		</SafeAreaView>
 	);
 }
@@ -131,30 +146,12 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 
-	imageContainer: {
-		flex: 1,
-		flexDirection: "row",
-		maxHeight: 200,
-	},
 	mainContainer: {
 		padding: 30,
 		flex: 1,
 		flexDirection: "column",
-	},
-
-	container: {
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "center",
-		padding: 0,
-		borderBottomWidth: 1,
-		borderColor: "#ccc",
-		marginBottom: 20,
-	},
-
-	titleContainer: {
-		flexDirection: "row",
-		gap: 8,
+		paddingBottom: 0,
+		minHeight: height,
 	},
 
 	input: {
@@ -172,41 +169,21 @@ const styles = StyleSheet.create({
 		color: "#fff",
 	},
 
-	inputPass: {
-		height: 40,
-		margin: 5,
-		padding: 10,
-		flex: 1,
-	},
-	reactLogo: {
-		height: 10,
-		flex: 1,
-		width: null,
-	},
-
-	icon: {
-		marginLeft: 10,
-	},
 	button: {
 		marginTop: 20,
-		padding: 10,
+		padding: 14,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",
-	},
-	image: {
-		flex: 1,
-		maxHeight: 200,
-		marginBottom: 20,
 	},
 });

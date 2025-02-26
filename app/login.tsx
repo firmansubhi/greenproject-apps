@@ -6,7 +6,8 @@ import {
 	TouchableOpacity,
 	SafeAreaView,
 	Text,
-	TouchableWithoutFeedback,
+	Pressable,
+	ScrollView,
 	Dimensions,
 } from "react-native";
 import { Image } from "expo-image";
@@ -67,47 +68,32 @@ export default function LoginScreen() {
 
 	return (
 		<SafeAreaView style={styles.saveContainer}>
-			<ThemedView2 style={styles.imageContainer}>
+			<ScrollView>
 				<ThemedView2 style={styles.imageLogoContainer}>
-					<Image
-						style={styles.imageLogo}
-						source={require("@/assets/images/icon.png")}
-						contentFit="cover"
-					/>
+					<Pressable onPress={() => router.replace("/home")}>
+						<Image
+							style={styles.imageLogo}
+							source={require("@/assets/images/logo.svg")}
+							contentFit="contain"
+						/>
+					</Pressable>
 				</ThemedView2>
-			</ThemedView2>
 
-			<ThemedView2
-				style={[
-					{
-						flex: 1,
-						justifyContent: "flex-start",
-						padding: 20,
-						paddingTop: 80,
-
-						flexDirection: "column",
-						paddingBottom: 0,
-					},
-				]}
-			></ThemedView2>
-
-			<ThemedView2 style={[{ justifyContent: "flex-end" }]}>
-				<View style={{ padding: 20 }}>
+				<ThemedView2 style={styles.mainContainer}>
 					<ThemedText>Username</ThemedText>
 					<TextInput
 						style={[styles.input, themeTextInput]}
 						onChangeText={onChangeUsername}
 						value={username}
-						placeholder="User Name"
 						placeholderTextColor="#777"
 					/>
 
+					<ThemedText>Password</ThemedText>
 					<View style={styles.container}>
 						<TextInput
 							style={[styles.inputPass, themeTextInput]}
 							onChangeText={onChangePassword}
 							value={password}
-							placeholder="Passwords"
 							placeholderTextColor="#777"
 							secureTextEntry={!showPassword}
 						/>
@@ -131,67 +117,23 @@ export default function LoginScreen() {
 					<ThemedText
 						onPress={() => router.replace("/register")}
 						type="link"
+						style={{ paddingTop: 10, textAlign: "center" }}
 					>
 						Don't have account? Join here
 					</ThemedText>
-				</View>
-
+				</ThemedView2>
 				<Image
-					style={[{ width: width, height: width * (361 / 400) }]}
+					style={[
+						{
+							marginTop: 60,
+							width: width,
+							height: width * (361 / 400),
+						},
+					]}
 					source={require("@/assets/images/hello.svg")}
 					contentFit="cover"
 				/>
-			</ThemedView2>
-
-			{/* <ThemedView2 style={styles.mainContainer}>
-				<ThemedText type="title">Login</ThemedText>
-				<ThemedText type="title">Login</ThemedText>
-				<ThemedText type="title">Login</ThemedText>
-				<ThemedText type="title">Login</ThemedText>
-				<ThemedText type="title">Login</ThemedText>
-				<ThemedText type="title">Login</ThemedText>
-
-				<TextInput
-					style={[styles.input, themeTextInput]}
-					onChangeText={onChangeUsername}
-					value={username}
-					placeholder="User Name"
-					placeholderTextColor="#777"
-				/>
-
-				<View style={styles.container}>
-					<TextInput
-						style={[styles.inputPass, themeTextInput]}
-						onChangeText={onChangePassword}
-						value={password}
-						placeholder="Passwords"
-						placeholderTextColor="#777"
-						secureTextEntry={!showPassword}
-					/>
-
-					<Ionicons
-						size={24}
-						name={showPassword ? "eye-off" : "eye"}
-						color="#aaa"
-						style={styles.icon}
-						onPress={toggleShowPassword}
-					/>
-				</View>
-				<TouchableOpacity
-					disabled={loading}
-					style={styles.button}
-					onPress={onPress}
-				>
-					<Text style={styles.buttonText}>Login</Text>
-				</TouchableOpacity>
-
-				<ThemedText
-					onPress={() => router.replace("/register")}
-					type="link"
-				>
-					Don't have account? Join here
-				</ThemedText>
-			</ThemedView2> */}
+			</ScrollView>
 		</SafeAreaView>
 	);
 }
@@ -199,31 +141,28 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
 	imageLogoContainer: {
 		flex: 1,
-		flexDirection: "column",
 		alignItems: "center",
 		height: 80,
 		paddingTop: 10,
 		marginBottom: 0,
-		maxHeight: 80,
 	},
 	imageLogo: {
-		width: 64,
-		height: 64,
+		width: 80,
+		height: 80 * (144 / 165),
 	},
 
 	saveContainer: {
 		flex: 1,
-		backgroundColor: "green",
 	},
 
 	imageContainer: {
 		height: 80,
 	},
 	mainContainer: {
-		backgroundColor: "red",
 		padding: 30,
 		flex: 1,
 		flexDirection: "column",
+		paddingBottom: 0,
 	},
 
 	container: {
@@ -231,56 +170,59 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 		padding: 0,
-		borderBottomWidth: 1,
-		borderColor: "#ccc",
+		borderWidth: 1,
+		borderColor: "#CBD5E1",
+		backgroundColor: "#F8FAFC",
+		borderRadius: 5,
+		marginTop: 5,
+		marginBottom: 15,
+		paddingRight: 10,
 	},
 
 	input: {
 		height: 40,
-		margin: 5,
+		marginBottom: 20,
 		padding: 10,
-		borderBottomWidth: 1,
-		borderColor: "#ccc",
-	},
-
-	inputLight: {
-		color: Colors.light.text2,
-	},
-	inputDark: {
-		color: Colors.dark.text2,
+		borderWidth: 1,
+		borderColor: "#CBD5E1",
+		borderRadius: 5,
+		marginTop: 5,
 	},
 
 	inputPass: {
 		height: 40,
-		margin: 5,
+		margin: 0,
 		padding: 10,
 		flex: 1,
 	},
+
+	inputLight: {
+		color: Colors.light.text2,
+		backgroundColor: Colors.light.background,
+	},
+	inputDark: {
+		color: Colors.dark.text2,
+		backgroundColor: Colors.dark.background,
+	},
+
 	icon: {
 		marginLeft: 10,
 	},
 	button: {
 		marginTop: 20,
-		padding: 10,
+		padding: 14,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",
-	},
-
-	image: {
-		flex: 1,
-		maxHeight: 200,
-		marginBottom: 20,
-		height: 200,
 	},
 });
