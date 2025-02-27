@@ -16,7 +16,6 @@ import { Image } from "expo-image";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { baseUrl, showAlert, getToken } from "../../utils";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { useSession } from "../ctx";
 
 const width = Dimensions.get("window").width;

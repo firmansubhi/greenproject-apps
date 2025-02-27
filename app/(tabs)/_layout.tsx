@@ -8,6 +8,7 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useSession } from "../ctx";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { allowGroup } from "../../utils";
 import { Image } from "expo-image";
 
@@ -34,7 +35,7 @@ export default function TabLayout() {
 					},
 					default: {},
 				}),
-				animation: "fade",
+				animation: "none",
 			}}
 		>
 			<Tabs.Screen
@@ -42,7 +43,7 @@ export default function TabLayout() {
 				options={{
 					title: "Home",
 					tabBarIcon: ({ color }) => (
-						<Ionicons size={28} name="home-outline" color={color} />
+						<AntDesign size={28} name="home" color={color} />
 					),
 				}}
 			/>

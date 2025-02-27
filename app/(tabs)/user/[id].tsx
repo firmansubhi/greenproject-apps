@@ -15,7 +15,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Picker } from "@react-native-picker/picker";
 
 import axios from "axios";
-import { router, Link, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { baseUrl, showAlert, getToken } from "../../../utils";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -138,7 +138,7 @@ export default function RegisterScreen() {
 			<ScrollView>
 				<ThemedView style={styles.mainContainer}>
 					<ThemedText type="title">Users Form</ThemedText>
-					<ThemedText>Update user data</ThemedText>
+					<ThemedText type="title2">Update user data</ThemedText>
 
 					<Picker
 						accessibilityLabel="Basic Picker Accessibility Label"
@@ -302,17 +302,18 @@ const styles = StyleSheet.create({
 		marginLeft: 10,
 	},
 	button: {
+		marginTop: 5,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",

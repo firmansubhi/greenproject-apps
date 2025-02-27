@@ -47,7 +47,6 @@ export default function TransactionFormScreen() {
 
 	const navigation = useNavigation();
 	const focused = navigation.isFocused();
-	const path = usePathname();
 
 	function toggleCameraFacing() {
 		setFacing((current) => (current === "back" ? "front" : "back"));
@@ -198,7 +197,9 @@ export default function TransactionFormScreen() {
 			<ScrollView>
 				<ThemedView style={styles.mainContainer}>
 					<ThemedText type="title">Transaction Form</ThemedText>
-					<ThemedText>Update transaction data</ThemedText>
+					<ThemedText type="title2">
+						Update transaction data
+					</ThemedText>
 
 					{cameraActive && (
 						<View style={styles.containerCamera}>
@@ -371,17 +372,18 @@ const styles = StyleSheet.create({
 		marginLeft: 10,
 	},
 	button: {
+		marginTop: 5,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",

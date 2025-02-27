@@ -19,6 +19,7 @@ import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router, useNavigation, usePathname } from "expo-router";
 import { Image } from "expo-image";
+import { Colors } from "@/constants/Colors";
 
 type ItemProps = {
 	id: string;
@@ -59,7 +60,7 @@ export default function NewsadminScreen() {
 			publishDate,
 			imageThumb,
 		}: ItemProps) => (
-			<View style={[styles.shadows, styles.listItem]}>
+			<View style={[themeBG, styles.listItem]}>
 				<View style={styles.listTop}>
 					<TouchableOpacity
 						onPress={() => deleteData(id, title)}
@@ -89,7 +90,7 @@ export default function NewsadminScreen() {
 				<Image
 					style={{ flex: 1, marginBottom: 0, height: 220 }}
 					source={{ uri: imageThumb }}
-					contentFit="contain"
+					contentFit="cover"
 				/>
 				<View
 					style={{
@@ -124,6 +125,8 @@ export default function NewsadminScreen() {
 
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
+
+	const themeBG = colorScheme === "light" ? styles.bgLight : styles.bgDark;
 
 	const deleteData = async (id: string, name: string) => {
 		setConfirm(true);
@@ -271,9 +274,9 @@ export default function NewsadminScreen() {
 				<ThemedView style={styles.titleContainer}>
 					<ThemedText type="title">News</ThemedText>
 				</ThemedView>
-				<ThemedText>News adminstrator page</ThemedText>
+				<ThemedText type="title2">News adminstrator page</ThemedText>
 
-				<View style={styles.containerSearch}>
+				<View style={[themeBG, styles.containerSearch]}>
 					<ThemedText type="subtitle">Search Form</ThemedText>
 					<TextInput
 						style={[styles.input, themeTextInput]}
@@ -351,6 +354,10 @@ export default function NewsadminScreen() {
 }
 
 const styles = StyleSheet.create({
+	bgLight: {
+		backgroundColor: Colors.light.background2,
+	},
+	bgDark: { backgroundColor: Colors.dark.background2 },
 	listTop: {
 		flex: 1,
 		flexDirection: "row-reverse",
@@ -411,8 +418,9 @@ const styles = StyleSheet.create({
 	},
 
 	containerSearch: {
-		paddingTop: 20,
-		paddingBottom: 5,
+		marginTop: 20,
+		padding: 20,
+		borderRadius: 20,
 	},
 	input: {
 		height: 40,
@@ -439,17 +447,18 @@ const styles = StyleSheet.create({
 	},
 
 	button: {
+		marginTop: 5,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",

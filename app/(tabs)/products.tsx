@@ -18,6 +18,7 @@ import { baseUrl, showAlert, getToken } from "../../utils";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router, useNavigation, usePathname } from "expo-router";
+import { Colors } from "@/constants/Colors";
 
 type ItemProps = {
 	id: string;
@@ -42,7 +43,7 @@ export default function ProductsScreen() {
 
 	const Item = memo(
 		({ id, name, price }: ItemProps) => (
-			<View style={[styles.listItem, styles.shadows]}>
+			<View style={[themeBG, styles.listItem]}>
 				<View style={styles.textItem}>
 					<ThemedText
 						style={{
@@ -83,6 +84,8 @@ export default function ProductsScreen() {
 	const colorScheme = useColorScheme();
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
+
+	const themeBG = colorScheme === "light" ? styles.bgLight : styles.bgDark;
 
 	const deleteData = async (id: string, name: string) => {
 		setConfirmDelete(true);
@@ -198,9 +201,9 @@ export default function ProductsScreen() {
 				<ThemedView style={styles.titleContainer}>
 					<ThemedText type="title">Product </ThemedText>
 				</ThemedView>
-				<ThemedText>Product management page</ThemedText>
+				<ThemedText type="title2">Product management page</ThemedText>
 
-				<View style={styles.containerSearch}>
+				<View style={[themeBG, styles.containerSearch]}>
 					<ThemedText type="subtitle">Search Form</ThemedText>
 					<TextInput
 						style={[styles.input, themeTextInput]}
@@ -244,6 +247,10 @@ export default function ProductsScreen() {
 }
 
 const styles = StyleSheet.create({
+	bgLight: {
+		backgroundColor: Colors.light.background2,
+	},
+	bgDark: { backgroundColor: Colors.dark.background2 },
 	saveContainer: {
 		flex: 1,
 	},
@@ -267,8 +274,9 @@ const styles = StyleSheet.create({
 	},
 
 	containerSearch: {
-		paddingTop: 20,
-		paddingBottom: 5,
+		marginTop: 20,
+		padding: 20,
+		borderRadius: 20,
 	},
 	input: {
 		height: 40,
@@ -295,17 +303,18 @@ const styles = StyleSheet.create({
 	},
 
 	button: {
+		marginTop: 5,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",
@@ -326,7 +335,7 @@ const styles = StyleSheet.create({
 		//flex: 1,
 		alignSelf: "center",
 		flexDirection: "row",
-		borderRadius: 2,
+		borderRadius: 5,
 	},
 	textItem: { flex: 1 },
 

@@ -4,7 +4,6 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	SafeAreaView,
-	Text,
 	ScrollView,
 	Dimensions,
 	Pressable,
@@ -13,10 +12,10 @@ import {
 import { Image } from "expo-image";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Redirect, router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 
 import axios from "axios";
-import { baseUrl } from "../../utils";
+import { baseUrl, showAlert, getToken } from "../../utils";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, {
 	ICarouselInstance,
@@ -24,8 +23,6 @@ import Carousel, {
 } from "react-native-reanimated-carousel";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
-import { useSession } from "../ctx";
-
 import { allowGroup } from "../../utils";
 
 type ItemProps = {
@@ -44,11 +41,11 @@ const width = Dimensions.get("window").width;
 
 export default function homeScreen() {
 	const [loading, setLoading] = useState(false);
-	const [data, setData] = useState([]);
 	const [investments, setInvestments] = useState([]);
 	const [communities, setCommunities] = useState([]);
 	const [blogs, setBlogs] = useState([]);
 	const [banners, setBanners] = useState([]);
+	const [poin, setPoin] = useState(0);
 
 	const colorScheme = useColorScheme();
 	const themeCarousel =
@@ -58,9 +55,44 @@ export default function homeScreen() {
 	const themeSubtitle =
 		colorScheme === "light" ? styles.subtitleLight : styles.subtitleDark;
 
+	const navigation = useNavigation();
+	const focused = navigation.isFocused();
+
 	useEffect(() => {
 		loadData();
 	}, []);
+
+	useEffect(() => {
+		if (focused) {
+			loadPoin();
+		}
+	}, [focused]);
+
+	const loadPoin = async () => {
+		setLoading(true);
+		let token = await getToken();
+		axios
+			.get(baseUrl() + "users/mypoin", {
+				headers: {
+					Authorization: "Bearer " + token,
+				},
+			})
+			.then(function (response) {
+				if (response.data.success == true) {
+					setPoin(response.data.data);
+				} else {
+					showAlert("Failed", response.data.message);
+				}
+			})
+			.catch(function (error) {
+				if (error.response) {
+					showAlert("Failed", error.response.data.message);
+				}
+			})
+			.finally(function () {
+				setLoading(false);
+			});
+	};
 
 	const loadData = async () => {
 		setLoading(true);
@@ -374,9 +406,13 @@ export default function homeScreen() {
 								]}
 							>
 								<ThemedText
-									style={{ fontWeight: "bold", fontSize: 20 }}
+									style={{
+										fontWeight: "bold",
+										fontSize: 20,
+										paddingTop: 2,
+									}}
 								>
-									0
+									{poin}
 								</ThemedText>
 								<ThemedText style={{ fontSize: 14 }}>
 									Poin

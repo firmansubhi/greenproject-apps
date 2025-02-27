@@ -60,7 +60,6 @@ export default function NewsFormScreen() {
 
 	const navigation = useNavigation();
 	const focused = navigation.isFocused();
-	const path = usePathname();
 
 	useEffect(() => {
 		if (focused) {
@@ -168,30 +167,28 @@ export default function NewsFormScreen() {
 			uri = "newsadmin/add";
 		}
 
-		if (imageChanged) {
-			//imageThumb
-		}
+		//imageThumb
 
-		if (!selectedImage) return;
-
-		const uri2 =
-			Platform.OS === "android"
-				? selectedImage.uri
-				: selectedImage.uri.replace("file://", "");
-		const filename = selectedImage.uri.split("/").pop();
-		const match = /\.(\w+)$/.exec(filename as string);
-		const ext = match?.[1];
-		const type = match ? `image/${match[1]}` : `image`;
 		const formData = new FormData();
 
-		//console.log(uri2, `image.${ext}`, type);
-		formData.append("image", {
-			uri: uri2,
-			name: `image.${ext}`,
-			type,
-		} as any);
+		if (imageChanged) {
+			if (!selectedImage) return;
 
-		console.log(publishDate);
+			const uri2 =
+				Platform.OS === "android"
+					? selectedImage.uri
+					: selectedImage.uri.replace("file://", "");
+			const filename = selectedImage.uri.split("/").pop();
+			const match = /\.(\w+)$/.exec(filename as string);
+			const ext = match?.[1];
+			const type = match ? `image/${match[1]}` : `image`;
+
+			formData.append("image", {
+				uri: uri2,
+				name: `image.${ext}`,
+				type,
+			} as any);
+		}
 
 		formData.append("_id", id as any);
 		formData.append("newsID", newsID);
@@ -223,7 +220,6 @@ export default function NewsFormScreen() {
 				}
 			)
 			.then(async function (response) {
-				console.log(response);
 				if (response.data.success == true) {
 					router.replace("/newsadmin");
 				} else {
@@ -233,7 +229,6 @@ export default function NewsFormScreen() {
 				setLoading(false);
 			})
 			.catch(function (error) {
-				console.log(error);
 				setLoading(false);
 				if (error.response) {
 					showAlert("Failed", error.response.data.message);
@@ -278,7 +273,7 @@ export default function NewsFormScreen() {
 			<ScrollView>
 				<ThemedView style={styles.mainContainer}>
 					<ThemedText type="title">News Form</ThemedText>
-					<ThemedText>Update news data</ThemedText>
+					<ThemedText type="title2">Update news data</ThemedText>
 
 					<View
 						style={{
@@ -367,7 +362,9 @@ export default function NewsFormScreen() {
 								value={publishDate}
 								mode={dtmode}
 								is24Hour={true}
-								onChange={onChangePublishDate}
+								onChange={(event: any, date: any) =>
+									onChangePublishDate(event, date)
+								}
 							/>
 						)}
 
@@ -491,17 +488,18 @@ const styles = StyleSheet.create({
 		marginLeft: 10,
 	},
 	button: {
+		marginTop: 5,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",

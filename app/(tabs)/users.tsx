@@ -19,6 +19,7 @@ import { Picker } from "@react-native-picker/picker";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router, useNavigation, usePathname } from "expo-router";
+import { Colors } from "@/constants/Colors";
 
 type ItemProps = {
 	userid: string;
@@ -48,7 +49,7 @@ export default function UsersScreen() {
 	]);
 
 	const Item = ({ userid, username, email, name, city, role }: ItemProps) => (
-		<View style={[styles.listItem, styles.shadows]}>
+		<View style={[styles.listItem, themeBG]}>
 			<View style={styles.textItem}>
 				<ThemedText style={{ fontWeight: "bold" }}>
 					{name} - {role}
@@ -85,6 +86,8 @@ export default function UsersScreen() {
 		colorScheme === "light" ? styles.selectLight : styles.selectDark;
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
+
+	const themeBG = colorScheme === "light" ? styles.bgLight : styles.bgDark;
 
 	const deleteData = async (id: string, name: string) => {
 		setConfirmDelete(true);
@@ -201,9 +204,9 @@ export default function UsersScreen() {
 				<ThemedView style={styles.titleContainer}>
 					<ThemedText type="title">Users</ThemedText>
 				</ThemedView>
-				<ThemedText>Users management page</ThemedText>
+				<ThemedText type="title2">Users management page</ThemedText>
 
-				<View style={styles.containerSearch}>
+				<View style={[themeBG, styles.containerSearch]}>
 					<ThemedText type="subtitle">Search Form</ThemedText>
 					<TextInput
 						style={[styles.input, themeTextInput]}
@@ -270,6 +273,10 @@ export default function UsersScreen() {
 }
 
 const styles = StyleSheet.create({
+	bgLight: {
+		backgroundColor: Colors.light.background2,
+	},
+	bgDark: { backgroundColor: Colors.dark.background2 },
 	saveContainer: {
 		flex: 1,
 	},
@@ -293,8 +300,9 @@ const styles = StyleSheet.create({
 	},
 
 	containerSearch: {
-		paddingTop: 20,
-		paddingBottom: 5,
+		marginTop: 20,
+		padding: 20,
+		borderRadius: 20,
 	},
 	input: {
 		height: 40,
@@ -321,17 +329,18 @@ const styles = StyleSheet.create({
 	},
 
 	button: {
+		marginTop: 5,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
 		shadowOpacity: 1, // IOS
 		shadowRadius: 1, //IOS
-		backgroundColor: "#198754",
+		backgroundColor: "#374982",
 		elevation: 2, // Android
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "row",
-		borderRadius: 5,
+		borderRadius: 20,
 	},
 	buttonText: {
 		color: "white",

@@ -3,31 +3,20 @@ import {
 	StyleSheet,
 	Text,
 	View,
-	FlatList,
-	TextInput,
 	TouchableOpacity,
-	Modal,
-	Pressable,
 	SafeAreaView,
 	ScrollView,
 	Dimensions,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import axios from "axios";
-import {
-	router,
-	useLocalSearchParams,
-	useNavigation,
-	usePathname,
-} from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { baseUrl, showAlert, getToken } from "../../utils";
 
 const width = Dimensions.get("window").width;

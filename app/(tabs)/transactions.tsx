@@ -24,6 +24,7 @@ import {
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { router, useNavigation, usePathname } from "expo-router";
+import { Colors } from "@/constants/Colors";
 
 type ItemProps = {
 	id: string;
@@ -78,7 +79,7 @@ export default function TransactionsScreen() {
 			status,
 			createdAt,
 		}: ItemProps) => (
-			<View style={[styles.shadows, styles.listItem]}>
+			<View style={[themeBG, styles.listItem]}>
 				<View style={styles.listTop}>
 					{allowGroup(["administrator", "receiver"]) && (
 						<TouchableOpacity
@@ -185,7 +186,7 @@ export default function TransactionsScreen() {
 							{status !== "finalized" &&
 								allowGroup(["administrator", "buyer"]) && (
 									<TouchableOpacity
-										style={styles.button}
+										style={styles.button2}
 										onPress={() =>
 											finalizeData(id, transID)
 										}
@@ -209,6 +210,8 @@ export default function TransactionsScreen() {
 
 	const themeTextInput =
 		colorScheme === "light" ? styles.inputLight : styles.inputDark;
+
+	const themeBG = colorScheme === "light" ? styles.bgLight : styles.bgDark;
 
 	const deleteData = async (id: string, name: string) => {
 		setConfirm(true);
@@ -393,9 +396,11 @@ export default function TransactionsScreen() {
 				<ThemedView style={styles.titleContainer}>
 					<ThemedText type="title">Transaction</ThemedText>
 				</ThemedView>
-				<ThemedText>Transaction management page</ThemedText>
+				<ThemedText type="title2">
+					Transaction management page
+				</ThemedText>
 
-				<View style={styles.containerSearch}>
+				<View style={[themeBG, styles.containerSearch]}>
 					<ThemedText type="subtitle">Search Form</ThemedText>
 					<TextInput
 						style={[styles.input, themeTextInput]}
@@ -438,7 +443,7 @@ export default function TransactionsScreen() {
 									}
 								>
 									<Text style={styles.buttonText}>
-										Create New Transaction
+										Create New
 									</Text>
 								</TouchableOpacity>
 							)}
@@ -475,6 +480,10 @@ export default function TransactionsScreen() {
 }
 
 const styles = StyleSheet.create({
+	bgLight: {
+		backgroundColor: Colors.light.background2,
+	},
+	bgDark: { backgroundColor: Colors.dark.background2 },
 	listTop: {
 		flex: 1,
 		flexDirection: "row-reverse",
@@ -535,8 +544,9 @@ const styles = StyleSheet.create({
 	},
 
 	containerSearch: {
-		paddingTop: 20,
-		paddingBottom: 5,
+		marginTop: 20,
+		padding: 20,
+		borderRadius: 20,
 	},
 	input: {
 		height: 40,
@@ -562,7 +572,8 @@ const styles = StyleSheet.create({
 		color: "#fff",
 	},
 
-	button: {
+	button2: {
+		marginTop: 5,
 		padding: 10,
 		shadowColor: "rgba(0,0,0, .4)", // IOS
 		shadowOffset: { height: 1, width: 1 }, // IOS
@@ -575,26 +586,30 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		borderRadius: 5,
 	},
+	button: {
+		marginTop: 5,
+		padding: 10,
+		shadowColor: "rgba(0,0,0, .4)", // IOS
+		shadowOffset: { height: 1, width: 1 }, // IOS
+		shadowOpacity: 1, // IOS
+		shadowRadius: 1, //IOS
+		backgroundColor: "#374982",
+		elevation: 2, // Android
+		justifyContent: "center",
+		alignItems: "center",
+		flexDirection: "row",
+		borderRadius: 20,
+	},
 	buttonText: {
 		color: "white",
-	},
-
-	shadows: {
-		elevation: 5,
-		shadowColor: "#ccc",
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 0.8,
-		shadowRadius: 2,
 	},
 
 	listItem: {
 		padding: 20,
 		margin: 10,
 		width: "100%",
-		//flex: 1,
 		alignSelf: "center",
-		//flexDirection: "column",
-		borderRadius: 2,
+		borderRadius: 5,
 	},
 	textItem: { flex: 1 },
 
