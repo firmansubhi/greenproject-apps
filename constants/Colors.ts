@@ -24,7 +24,7 @@ export const Colors = {
 		text: "#ECEDEE",
 		text2: "#ECEDEE",
 		background: "#151718",
-		background2: "#151718",
+		background2: "#555",
 		tint: tintColorDark,
 		icon: "#9BA1A6",
 		tabIconDefault: "#9BA1A6",

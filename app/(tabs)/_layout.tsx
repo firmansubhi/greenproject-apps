@@ -93,34 +93,6 @@ export default function TabLayout() {
 					href: null,
 				}}
 			/>
-			{allowGroup(["administrator"]) ? (
-				<Tabs.Screen
-					name="newsadmin"
-					options={{
-						title: "News",
-						tabBarIcon: ({ color }) => (
-							<Ionicons
-								size={28}
-								name="newspaper-outline"
-								color={color}
-							/>
-						),
-					}}
-				/>
-			) : (
-				<Tabs.Screen
-					name="newsadmin"
-					options={{
-						href: null,
-					}}
-				/>
-			)}
-			<Tabs.Screen
-				name="newsadm/[id]"
-				options={{
-					href: null,
-				}}
-			/>
 
 			{allowGroup(["administrator", "seller"]) ? (
 				<Tabs.Screen
@@ -151,6 +123,35 @@ export default function TabLayout() {
 					}}
 				/>
 			)}
+
+			{allowGroup(["administrator"]) ? (
+				<Tabs.Screen
+					name="newsadmin"
+					options={{
+						title: "News",
+						tabBarIcon: ({ color }) => (
+							<Ionicons
+								size={28}
+								name="newspaper-outline"
+								color={color}
+							/>
+						),
+					}}
+				/>
+			) : (
+				<Tabs.Screen
+					name="newsadmin"
+					options={{
+						href: null,
+					}}
+				/>
+			)}
+			<Tabs.Screen
+				name="newsadm/[id]"
+				options={{
+					href: null,
+				}}
+			/>
 
 			{allowGroup(["administrator"]) ? (
 				<Tabs.Screen
@@ -194,19 +195,29 @@ export default function TabLayout() {
 					),
 				}}
 			/>
-			<Tabs.Screen
-				name="logout"
-				options={{
-					title: "Sign Out",
-					tabBarIcon: ({ color }) => (
-						<Ionicons
-							size={28}
-							name="power-outline"
-							color={color}
-						/>
-					),
-				}}
-			/>
+
+			{!allowGroup(["administrator"]) ? (
+				<Tabs.Screen
+					name="logout"
+					options={{
+						title: "Sign Out",
+						tabBarIcon: ({ color }) => (
+							<Ionicons
+								size={28}
+								name="power-outline"
+								color={color}
+							/>
+						),
+					}}
+				/>
+			) : (
+				<Tabs.Screen
+					name="logout"
+					options={{
+						href: null,
+					}}
+				/>
+			)}
 		</Tabs>
 	);
 }
