@@ -15,7 +15,13 @@ import { ThemedView } from "@/components/ThemedView";
 import { router, useNavigation } from "expo-router";
 
 import axios from "axios";
-import { baseUrl, showAlert, getToken } from "../../utils";
+import {
+	baseUrl,
+	showAlert,
+	getToken,
+	allowGroup,
+	currency,
+} from "../../utils";
 import { useSharedValue } from "react-native-reanimated";
 import Carousel, {
 	ICarouselInstance,
@@ -23,7 +29,6 @@ import Carousel, {
 } from "react-native-reanimated-carousel";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Colors } from "@/constants/Colors";
-import { allowGroup } from "../../utils";
 
 type ItemProps = {
 	0: ItemProps2;
@@ -412,7 +417,7 @@ export default function homeScreen() {
 										paddingTop: 2,
 									}}
 								>
-									{poin}
+									{currency(poin)}
 								</ThemedText>
 								<ThemedText style={{ fontSize: 14 }}>
 									Poin
