@@ -12,32 +12,26 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView2 } from "@/components/ThemedView2";
 
 import { Image } from "expo-image";
+import Constants from "expo-constants";
 
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
-import { baseUrl, showAlert, getToken } from "../../utils";
+import { baseUrl, showAlert } from "../../utils";
 import { useSession } from "../ctx";
+import { WebView } from "react-native-webview";
 
 const width = Dimensions.get("window").width;
 export default function ReadNewsScreen() {
-	const [title, setTitle] = useState("");
-	const [intro, setIntro] = useState("");
-	const [content, setContent] = useState("");
-	const [categoryName, setCategoryName] = useState("");
-	const [publishDate, setPublishDate] = useState();
-	const [imagePath, setImagePath] = useState(
-		"https://tempdev2.roomie.id/images/blank-qr.png"
-	);
-
 	const [loading, setLoading] = useState(false);
 
 	const { id } = useLocalSearchParams();
+
+	const webUrl = process.env.EXPO_PUBLIC_WEB_URL;
 
 	const { session } = useSession();
 
 	useEffect(() => {
 		if (id != "0") {
-			loadData(id);
 		}
 
 		const backAction = () => {
@@ -57,94 +51,90 @@ export default function ReadNewsScreen() {
 		return () => backHandler.remove();
 	}, []);
 
-	const loadData = async (id: any) => {
-		setLoading(true);
-
-		axios
-			.get(baseUrl() + "newsadmin/view/" + id, {})
-			.then(function (response) {
-				if (response.data.success == true) {
-					if (response.data.data.imagePath == "") {
-						setImagePath(
-							"https://tempdev2.roomie.id/images/blank-qr.png"
-						);
-					} else {
-						setImagePath(response.data.data.imagePath);
-					}
-
-					setTitle(response.data.data.title);
-					setIntro(response.data.data.intro);
-					setContent(response.data.data.content);
-					setPublishDate(response.data.data.publishDate);
-					setCategoryName(response.data.data.categoryName);
-				} else {
-					showAlert("Failed", response.data.message);
-				}
-			})
-			.catch(function (error) {
-				if (error.response) {
-					showAlert("Failed", error.response.data.message);
-				}
-			})
-			.finally(function () {
-				setLoading(false);
-			});
-	};
-
 	return (
 		<SafeAreaView style={styles.saveContainer}>
-			<ScrollView>
-				<Image
-					style={styles.image}
-					source={{ uri: imagePath }}
-					contentFit="contain"
-				/>
-				<ThemedView2 style={styles.mainContainer}>
-					<ThemedText style={{ fontSize: 18, marginBottom: 10 }}>
-						{categoryName}
-					</ThemedText>
-
-					<ThemedText type="title" style={{ marginBottom: 10 }}>
-						{title}
-					</ThemedText>
-					<ThemedText
-						style={{
-							fontSize: 14,
-							marginBottom: 10,
-							color: "#777",
-							borderBottomColor: "#eee",
-							borderBottomWidth: 1,
-						}}
-					>
-						{publishDate}
-					</ThemedText>
-					<ThemedText
-						style={{
-							marginBottom: 10,
-							fontWeight: "bold",
-						}}
-					>
-						{intro}
-					</ThemedText>
-					<ThemedText>{content}</ThemedText>
-				</ThemedView2>
-				<Image
-					style={[
-						{
-							marginTop: 0,
-							width: width,
-							height: width * (147 / 390),
-						},
-					]}
-					source={require("@/assets/images/hello2.svg")}
-					contentFit="cover"
-				/>
-			</ScrollView>
+			<WebView
+				style={styles.container}
+				source={{
+					uri: webUrl + "appread/" + id,
+				}}
+			/>
 		</SafeAreaView>
+
+		//<SafeAreaView style={styles.saveContainer}>
+		//	<ScrollView>
+		//		<Image
+		//			style={styles.image}
+		//			source={{ uri: imagePath }}
+		//			contentFit="contain"
+		//		/>
+
+		//		<WebView
+		//			originWhitelist={["*"]}
+		//			source={{ html: "<p>Here I am</p>" }}
+		//		></WebView>
+
+		//		<ThemedView2 style={styles.mainContainer}>
+		//			<ThemedText style={{ fontSize: 18, marginBottom: 10 }}>
+		//				{categoryName}
+		//			</ThemedText>
+
+		//			<ThemedText type="title" style={{ marginBottom: 10 }}>
+		//				{title}
+		//			</ThemedText>
+		//			<ThemedText
+		//				style={{
+		//					fontSize: 14,
+		//					marginBottom: 10,
+		//					color: "#777",
+		//					borderBottomColor: "#eee",
+		//					borderBottomWidth: 1,
+		//				}}
+		//			>
+		//				{publishDate}
+		//			</ThemedText>
+		//			<ThemedText
+		//				style={{
+		//					marginBottom: 10,
+		//					fontWeight: "bold",
+		//				}}
+		//			>
+		//				{intro}
+		//			</ThemedText>
+
+		//			<ThemedText>{content}</ThemedText>
+		//			<WebView
+		//				style={{
+		//					flex: 1,
+		//				}}
+		//				originWhitelist={["*"]}
+		//				source={{
+		//					html: HTML,
+		//				}}
+		//			/>
+		//		</ThemedView2>
+		//		<Image
+		//			style={[
+		//				{
+		//					marginTop: 0,
+		//					width: width,
+		//					height: width * (147 / 390),
+		//				},
+		//			]}
+		//			source={require("@/assets/images/hello2.svg")}
+		//			contentFit="cover"
+		//		/>
+		//	</ScrollView>
+		//</SafeAreaView>
 	);
 }
 
 const styles = StyleSheet.create({
+	container2: {
+		flex: 1,
+		marginTop: Constants.statusBarHeight,
+	},
+
 	image: {
 		flex: 1,
 		marginBottom: 0,

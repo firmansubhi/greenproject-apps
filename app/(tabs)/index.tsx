@@ -154,11 +154,12 @@ export default function homeScreen() {
 	const allowScan = allowGroup(["administrator", "receiver"]);
 
 	const onPressScan = () => {
-		if (allowScan) {
-			router.replace("/transaction/0");
-		} else {
-			router.replace("/myQRCode");
-		}
+		router.replace("/scan");
+		//if (allowScan) {
+		//	router.replace("/transaction/0");
+		//} else {
+		//	router.replace("/myQRCode");
+		//}
 	};
 
 	const ref = React.useRef<ICarouselInstance>(null);
@@ -351,24 +352,29 @@ export default function homeScreen() {
 								/>
 							</TouchableOpacity>
 
-							<View
-								style={[
-									{
-										width: 78,
-										height: 48,
-										alignItems: "center",
-									},
-								]}
-							>
-								<ThemedText
-									style={{ fontWeight: "bold", fontSize: 20 }}
+							<TouchableOpacity onPress={onPressScan}>
+								<View
+									style={[
+										{
+											width: 78,
+											height: 48,
+											alignItems: "center",
+										},
+									]}
 								>
-									Scan
-								</ThemedText>
-								<ThemedText style={{ fontSize: 14 }}>
-									QR code
-								</ThemedText>
-							</View>
+									<ThemedText
+										style={{
+											fontWeight: "bold",
+											fontSize: 20,
+										}}
+									>
+										Scan
+									</ThemedText>
+									<ThemedText style={{ fontSize: 14 }}>
+										QR code
+									</ThemedText>
+								</View>
+							</TouchableOpacity>
 
 							<View
 								style={[
