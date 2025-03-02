@@ -154,8 +154,10 @@ export default function RegisterScreen() {
 					>
 						<Picker.Item label="All Group" value="-" />
 						<Picker.Item label="Seller" value="seller" />
+
 						<Picker.Item label="Receiver" value="receiver" />
 						<Picker.Item label="Buyer" value="buyer" />
+						<Picker.Item label="Copywriter" value="copywriter" />
 						<Picker.Item
 							label="Administrator"
 							value="administrator"

@@ -125,7 +125,7 @@ export default function TabLayout() {
 				/>
 			)}
 
-			{allowGroup(["administrator"]) ? (
+			{allowGroup(["administrator", "copywriter"]) ? (
 				<Tabs.Screen
 					name="newsadmin"
 					options={{
