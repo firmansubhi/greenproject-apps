@@ -165,6 +165,7 @@ export default function NewsadminScreen() {
 	const loadData = async () => {
 		setLoading(true);
 		let token = await getToken();
+
 		axios
 			.get(baseUrl() + "newsadmin/all", {
 				params: {
